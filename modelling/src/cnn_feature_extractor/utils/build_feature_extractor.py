@@ -1,11 +1,12 @@
 #import necessary libraries
-from tensorflow.keras.applications.vgg19 import VGG19
+
+##from tensorflow.keras.applications.vgg19 import VGG19
 from tensorflow.keras.applications.mobilenet_v2 import MobileNetV2
 from tensorflow.keras.applications.densenet import DenseNet201
 from tensorflow.keras.layers import Input
 from tensorflow.keras.models import Model
 
-#function that return a feature extractor based on a pre-trained CNN backbone
+#function that returns a feature extractor based on a pre-trained CNN backbone
 def build_feature_extractor(input_image_shape, cnn_backbone_name, output_layer_name):
 
     #check that the input image size provided is (224,224,3)
