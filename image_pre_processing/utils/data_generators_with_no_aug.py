@@ -1,3 +1,5 @@
+import tensorflow as tf
+
 #function to perform image resizing and pixel value normalisation
 def image_preprocessing(obs):
 

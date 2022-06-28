@@ -1,4 +1,6 @@
-def convert_to_np_arrays(dataset, split_name):
+import numpy as np
+
+def convert_to_np_array(dataset, split_name):
 
   #get the number of images in dataset
   num_images = len(dataset)

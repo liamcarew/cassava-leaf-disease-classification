@@ -18,7 +18,7 @@ from deepforest import CascadeForestClassifier
 import random
 from sklearn import utils
 from image_pre_processing.utils.data_generators_with_no_aug import image_preprocessing
-from image_pre_processing.utils.convert_to_np_array import convert_to_np_arrays
+from image_pre_processing.utils.convert_to_np_array import convert_to_np_array
 from modelling.src.multi_grained_scanning.utils.gcForestCS.lib.gcforest import gcforestCS
 from modelling.src.cnn_feature_extractor.utils import build_feature_extractor
 from modelling.src.multi_grained_scanning.utils import build_mgs, reshape_mgs_output
