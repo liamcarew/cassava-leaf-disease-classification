@@ -73,7 +73,7 @@ print('Image Pre-processing complete!\n')
 print('Building CNN feature extractor...\n')
 
 ##Build pre-trained CNN feature extractor using model run specifications
-cnn_feature_extractor = build_feature_extractor(input_image_shape = (224, 224, 3), cnn_backbone_name = 'DenseNet201', output_layer_name = 'conv3_block12_2_conv') #28x28x32 (as example case and then change to 28x28x128 once you sort out things your side)
+cnn_feature_extractor = build_feature_extractor(input_image_shape = (224, 224, 3), cnn_backbone_name = 'DenseNet201', output_layer_name = 'conv3_block1_1_conv') #28x28x128
 
 print('Performing feature extraction...\n')
 
@@ -125,6 +125,8 @@ print('Fit gcForestCS model to training data...\n')
 # ## Perform multi-grained scanning (MGS)
 cnn_gc_cs.fit_transform(x_train, y_train)
 
+print('gcForestCS model training complete!\n')
+
 # ## Produce np arrays of MGS outputs
 # cnn_mgs_train = np.array(cnn_mgs_output[0])
 # cnn_mgs_val = np.array(cnn_mgs_output[1])
@@ -147,5 +149,5 @@ y_val_pred = cnn_gc_cs.predict(x_val)
 # #produce confusion matrix from 'y_pred' and 'y_val'
 cf_matrix = confusion_matrix(y_val, y_val_pred)
 
-np.save('cf_mat_nc_na_b1_cl1_gc_cs.np', cf_matrix)
+np.save('cf_mat_nc_na_b1_cl1_gc_cs.npy', cf_matrix)
 
