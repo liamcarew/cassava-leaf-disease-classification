@@ -24,9 +24,9 @@ def build_mgs():
     layers_sw["n_classes"] = 5
     layers_sw["estimators"] = []
     layers_sw["estimators"].append(
-        {"n_folds":1,"type":"ExtraTreesClassifier","n_estimators":20,"max_depth":10,"n_jobs":1,"min_samples_leaf":10})
+        {"n_folds":10,"type":"ExtraTreesClassifier","n_estimators":20,"max_depth":10,"n_jobs":1,"min_samples_leaf":10})
     layers_sw["estimators"].append(
-        {"n_folds":1,"type":"RandomForestClassifier","n_estimators":20,"max_depth":10,"n_jobs":1,"min_samples_leaf":10})
+        {"n_folds":10,"type":"RandomForestClassifier","n_estimators":20,"max_depth":10,"n_jobs":1,"min_samples_leaf":10})
     layers_sw["stride_x"] = 2
     layers_sw["stride_y"] = 2
     layers_sw["win_x"] = 4
@@ -46,14 +46,25 @@ def build_mgs():
     layers_pool["win_x"] = 2
     layers_pool["win_y"] = 2
 
-    #append these hyperparameter settings to the 'net' dictionary
+    #append these hyperparameter settings for multi-grained scanning to the 'net' dictionary
     layers = []
     layers.append(layers_sw)
     layers.append(layers_pool)
     net["layers"] = layers
 
+    #create the architecture for cascade forest with confidence screening (CS)
+    ca_config = {}
+    ca_config["random_state"] = 1
+    ca_config["max_layers"] = 20
+    ca_config["early_stopping_rounds"] = 3
+    ca_config["n_classes"] = 5
+    ca_config["estimators"] = []
+    ca_config["estimators"].append({"n_folds": 10, "type": "RandomForestClassifier", "n_estimators": 50, "max_depth": 10, "n_jobs": 1})
+    ca_config["estimators"].append({"n_folds": 10, "type": "ExtraTreesClassifier", "n_estimators": 50, "max_depth": 10, "n_jobs": 1})
+
     #lastly, append the 'net' dictionary to the 'config' dictionary to finalise MGS structure
     config["net"] = net
+    config["cascadeCS"] = ca_config
 
     #return MGS structure in JSON format
     return config

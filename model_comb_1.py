@@ -1,7 +1,7 @@
 # curated training set?: no
 # augmentation?: no
-# CNN backbone: DenseNet201
-# Candidate layer: 28x28x128 (but use 28x28x32 as example case until you are comfortable that you are running your code correctly)
+# CNN backbone: DenseNet201 (Backbone 1)
+# Candidate layer: 28x28x128
 # Classifier: Cascade forest
 
 #import necessary libraries
@@ -14,7 +14,7 @@ import sys
 from sklearn.metrics import accuracy_score, confusion_matrix
 #import tensorflow as tf
 import tensorflow_datasets as tfds
-from deepforest import CascadeForestClassifier
+#from deepforest import CascadeForestClassifier
 import random
 from sklearn import utils
 from image_pre_processing.utils.data_generators_with_no_aug import image_preprocessing
@@ -89,27 +89,41 @@ x_val = np.array(x_val)
 
 print('Feature extraction complete!\n')
 
+# print('Importing training feature maps and associated labels...\n')
+
+# x_train = np.load('x_train_feature_maps.npy')
+# y_train = np.load('y_train.npy')
+
+# print('training feature maps and associated labels loaded!\n')
+
+# print('Importing validation feature maps and associated labels...\n')
+
+# x_val = np.load('x_val_feature_maps.npy')
+# y_val = np.load('y_val.npy')
+
+# print('validation feature maps and associated labels loaded!\n')
+
 ################## Multi-grained scanning ##################################
 
 print('Preparing for multi-grained scanning...\n')
 
 ## Produce architecture that will be used during multi-grained scanning
-mgs_config = build_mgs()
+gc_cs_config = build_mgs()
 
 ## Create a model instance based on configuration variable structure
-cnn_mgs = GCForestCS(mgs_config)
+cnn_gc_cs = GCForestCS(gc_cs_config)
 
 ## Set MGS model so that model will not be kept in memory (since RAM is bottleneck for algorithm)
-cnn_mgs.set_keep_model_in_mem(flag=0)
+#cnn_mgs.set_keep_model_in_mem(flag=0)
 
 ## Reshape the training and validation inputs to format needed for multi-grained scanning (n_images, n_channels, width, height)
 x_train = x_train.reshape(x_train.shape[0], x_train.shape[3], x_train.shape[1], x_train.shape[2])
 x_val = x_val.reshape(x_val.shape[0], x_val.shape[3], x_val.shape[1], x_val.shape[2])
 
-print('Performing MGS...\n')
+print('Fit gcForestCS model to training data...\n')
 
 # ## Perform multi-grained scanning (MGS)
-# cnn_mgs_output = cnn_mgs.fit_transform(x_train, y_train, X_test=x_val, y_test=y_val)
+cnn_gc_cs.fit_transform(x_train, y_train)
 
 # ## Produce np arrays of MGS outputs
 # cnn_mgs_train = np.array(cnn_mgs_output[0])
@@ -128,8 +142,10 @@ print('Performing MGS...\n')
 # ################## Predictions ##############################################################
 
 # #feed validation data outputted from MGS into cascade forest classifier to produce predictions
-# y_val_pred = model.predict(cnn_mgs_val)
+y_val_pred = cnn_gc_cs.predict(x_val)
 
 # #produce confusion matrix from 'y_pred' and 'y_val'
-# cf_matrix = confusion_matrix(y_val, y_val_pred)
+cf_matrix = confusion_matrix(y_val, y_val_pred)
+
+np.save('cf_mat_nc_na_b1_cl1_gc_cs.np', cf_matrix)
 
