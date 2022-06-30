@@ -1,6 +1,6 @@
 #function that produces a JSON-style configuration for multi-grained scanning to follow
 
-def build_mgs():
+def build_gcforestCS():
 
     #initialise two dictionary objects: 'config' and 'net'
     config = {}
