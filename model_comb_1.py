@@ -21,7 +21,7 @@ from sklearn import utils
 #from image_pre_processing.utils.convert_to_np_array import convert_to_np_array
 ##from modelling.src.multi_grained_scanning.utils.gcForestCS.lib.gcforest import gcforestCS
 #from modelling.src.cnn_feature_extractor.utils.build_feature_extractor import build_feature_extractor
-from cassavamodelling.src.multi_grained_scanning.utils.build_gcForestCS import build_gcforestCS
+from modelling.src.multi_grained_scanning.utils.build_gcForestCS import build_gcforestCS
 from modelling.src.multi_grained_scanning.utils.reshape_mgs_output import reshape_mgs_output
 #from tensorflow.keras.applications.vgg19 import VGG19
 from tensorflow.keras.applications.densenet import DenseNet201
