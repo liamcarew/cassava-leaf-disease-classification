@@ -21,17 +21,17 @@ from sklearn import utils
 #from image_pre_processing.utils.convert_to_np_array import convert_to_np_array
 ##from modelling.src.multi_grained_scanning.utils.gcForestCS.lib.gcforest import gcforestCS
 #from modelling.src.cnn_feature_extractor.utils.build_feature_extractor import build_feature_extractor
-from modelling.src.multi_grained_scanning.utils.build_gcForestCS import build_gcforestCS
-from modelling.src.multi_grained_scanning.utils.reshape_mgs_output import reshape_mgs_output
+from cassava_leaf_disease_classification.modelling.src.multi_grained_scanning.utils.build_gcForestCS import build_gcforestCS
+from cassava_leaf_disease_classification.modelling.src.multi_grained_scanning.utils.reshape_mgs_output import reshape_mgs_output
 #from tensorflow.keras.applications.vgg19 import VGG19
-from tensorflow.keras.applications.densenet import DenseNet201
+#from tensorflow.keras.applications.densenet import DenseNet201
 #from tensorflow.keras.applications.efficientnet import EfficientNetB4
 #from tensorflow_hub import KerasLayer
-from tensorflow.keras.layers import Input
-from tensorflow.keras.models import Model
+#from tensorflow.keras.layers import Input
+#from tensorflow.keras.models import Model
 #from tensorflow.data import AUTOTUNE
 
-from modelling.src.multi_grained_scanning.utils.gcForestCS.lib.gcForest.gcforestCS import GCForestCS
+from cassava_leaf_disease_classification.modelling.src.multi_grained_scanning.utils.gcForestCS.lib.gcForest.gcforestCS import GCForestCS
 #sys.path.append('./modelling/src/multi_grained_scanning/utils/gcForestCS/lib/gcForest')
 #from gcforestCS import GCForestCS
 
@@ -130,7 +130,7 @@ print('gcForestCS model training complete!\n')
 
 #################### Saving results from MGS #########################################
 
-np.save('/scratch/crwlia001/mgs_densenet201_cl1.npy', cnn_mgs)
+np.save('/scratch/crwlia001/mgs_results_densenet201_28x28x128.npy', cnn_mgs)
 
 ######################################################################################
 
