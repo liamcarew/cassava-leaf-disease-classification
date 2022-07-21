@@ -24,9 +24,9 @@ def build_gcforestCS():
     layers_sw["n_classes"] = 5
     layers_sw["estimators"] = []
     layers_sw["estimators"].append(
-        {"n_folds":1,"type":"ExtraTreesClassifier","n_estimators":20,"max_depth":10,"n_jobs":1,"min_samples_leaf":10})
+        {"n_folds":1,"type":"ExtraTreesClassifier","n_estimators": 20,"max_depth": 10,"n_jobs":1,"min_samples_leaf":10})
     layers_sw["estimators"].append(
-        {"n_folds":1,"type":"RandomForestClassifier","n_estimators":20,"max_depth":10,"n_jobs":1,"min_samples_leaf":10})
+        {"n_folds":1,"type":"RandomForestClassifier","n_estimators": 20,"max_depth": 10,"n_jobs":1,"min_samples_leaf":10})
     layers_sw["stride_x"] = 2
     layers_sw["stride_y"] = 2
     layers_sw["win_x"] = 4
