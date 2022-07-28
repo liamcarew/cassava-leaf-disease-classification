@@ -2,9 +2,9 @@ import numpy as np
 
 #function that takes the results from MGS and performs necessary reshaping of MGS outputs so that they can be fed into the different classifiers
 
-def reshape_mgs_output(mgs_output):
+def reshape_inputs(input_array):
     
     #reshape output vector from MGS to format required for cascade forest classifier
-    mgs_output = mgs_output.reshape(mgs_output.shape[0], mgs_output.shape[1]*mgs_output.shape[2]*mgs_output.shape[3])
+    reshaped_input = input_array.reshape(input_array.shape[0], input_array.shape[1]*input_array.shape[2]*input_array.shape[3])
 
-    return mgs_output
+    return reshaped_input

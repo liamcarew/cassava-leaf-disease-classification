@@ -3,7 +3,7 @@
 # for which CNN backbone?: None
 # Raw images?: yes (224x224x3) - input dimensions for DenseNet201
 # Candidate layer?: None
-# Classifier: gcForestCS
+# Classifier: XGBoost
 
 #import necessary libraries
 
@@ -13,6 +13,7 @@ import numpy as np
 import pickle
 import sys
 from sklearn.metrics import accuracy_score, confusion_matrix, f1_score
+from sklearn.model_selection import GridSearchCV
 #import tensorflow as tf
 #import tensorflow_datasets as tfds
 #from deepforest import CascadeForestClassifier
@@ -23,7 +24,7 @@ from sklearn import utils
 ##from modelling.src.multi_grained_scanning.utils.gcForestCS.lib.gcforest import gcforestCS
 #from modelling.src.cnn_feature_extractor.utils.build_feature_extractor import build_feature_extractor
 from cassava_leaf_disease_classification.modelling.src.multi_grained_scanning.utils.build_gcForestCS import build_gcforestCS
-from cassava_leaf_disease_classification.modelling.src.multi_grained_scanning.utils.reshape_mgs_output import reshape_mgs_output
+from cassava_leaf_disease_classification.modelling.src.multi_grained_scanning.utils.reshape_inputs import reshape_inputs
 #from tensorflow.keras.applications.vgg19 import VGG19
 #from tensorflow.keras.applications.densenet import DenseNet201
 #from tensorflow.keras.applications.efficientnet import EfficientNetB4
@@ -35,6 +36,8 @@ from cassava_leaf_disease_classification.modelling.src.multi_grained_scanning.ut
 from cassava_leaf_disease_classification.modelling.src.multi_grained_scanning.utils.gcForestCS.lib.gcforest.gcforestCS import GCForestCS
 #sys.path.append('./modelling/src/multi_grained_scanning/utils/gcForestCS/lib/gcForest')
 #from gcforest import GCForest
+
+import xgboost as xgb
 
 ###################### Importing Data ###################################
 
@@ -105,57 +108,47 @@ y_val = np.load('/scratch/crwlia001/y_val.npy')
 
 print('validation images and associated labels loaded!\n')
 
-################## Multi-grained scanning ##################################
+################## Reshaping input for XGBoost #############################
 
-print('Preparing for multi-grained scanning...\n')
+print('Preparing images for XGBoost...\n')
 
-## Produce architecture that will be used during multi-grained scanning
-gc_config = build_gcforestCS()
+#Reshape 4D images arrays (n_obs, height, width, channels) into 2D vector (n_obs, n_elements)
+x_train = reshape_inputs(x_train)
+x_val = reshape_inputs(x_val)
 
-## Create a model instance based on configuration variable structure
-gc = GCForestCS(gc_config)
+################## Fitting raw data to XGBoost model #######################
 
-## Set MGS model so that model will not be kept in memory (since RAM is bottleneck for algorithm)
-#cnn_gc_cs.set_keep_model_in_mem(flag=0)
+print('\nPerforming hyperparameter grid search...\n')
 
-## Reshape the training and validation inputs to format needed for multi-grained scanning (n_images, n_channels, width, height)
-x_train = x_train.reshape(x_train.shape[0], x_train.shape[3], x_train.shape[1], x_train.shape[2])
-x_val = x_val.reshape(x_val.shape[0], x_val.shape[3], x_val.shape[1], x_val.shape[2])
+#Specific the values for hyperparameters during gridsearch
+param_grid = {
+    "n_estimators": [2,4],
+    "max_depth": [2,4]
+    }
 
-print('Fit gcForest model to training data...\n')
+#create xgb model instance
+xgb_model = xgb.XGBClassifier()
 
-# ## Perform multi-grained scanning (MGS)
-gc.fit_transform(x_train, y_train)
+#specify how to perform gridsearch (5-fold CV)
+grid_search = GridSearchCV(
+    estimator=xgb_model,
+    param_grid=param_grid,
+    scoring = 'f1_weighted',
+    n_jobs = 1,
+    cv = 5,
+    verbose=True
+)
 
-print()
-print('gcForest model training complete!\n')
-print('########################################################################')
+#Perform gridsearch
+grid_search.fit(x_train, y_train)
 
-#################### Saving results from MGS #########################################
+#get best model hyperparameter combination
+grid_search.best_estimator_
 
-#np.save('/scratch/crwlia001/mgs_densenet201_cl1.npy', cnn_mgs)
-
-######################################################################################
-
-# ## Produce np arrays of MGS outputs
-# cnn_mgs_train = np.array(cnn_mgs_output[0])
-# cnn_mgs_val = np.array(cnn_mgs_output[1])
-
-# ## Reshape MGS outputs to that needed before feeding it into cascade forest classifier
-# cnn_mgs_train = reshape_mgs_output(cnn_mgs_train)
-# cnn_mgs_val = reshape_mgs_output(cnn_mgs_val)
-
-# ################## Fitting cascade forest classifier ########################################
-
-# #feed the feature vector produced from MGS into cascade forest classifier with default parameters
-# model = CascadeForestClassifier(random_state=1)
-# model.fit(cnn_mgs_train, y_train)
 
 # ################## Predictions ##############################################################
 
-print()
-print('Performing predictions on validation set...')
-print()
+print('\nPerforming predictions on validation set...\n')
 
 # # #feed validation data outputted from MGS into cascade forest classifier to produce predictions
 y_val_pred = gc.predict(x_val)
@@ -165,18 +158,15 @@ cf_matrix = confusion_matrix(y_val, y_val_pred)
 
 #################### Saving confusion matrix #########################################
 
-np.save('/scratch/crwlia001/cf_mat_nc_na_raw_img_gc_cs.npy', cf_matrix)
+#np.save('/scratch/crwlia001/cf_mat_nc_na_raw_img_gc_cs.npy', cf_matrix)
 
 ################### Calculating F1-score ########################################
 
-print()
-print('Calculated model metrics:')
+print('\nCalculated model metrics:\n')
 
 #calculate weighted f1-score (to account for class imbalance) and overall accuracy (OA)
 f1 = f1_score(y_val, y_val_pred, average='weighted')
 acc = accuracy_score(y_val, y_val_pred) * 100
 
-print()
 print("Validation weighted f1-score: {:.3f}".format(f1))
 print("Validation overall accuracy: {:.3f}%".format(acc))
-
