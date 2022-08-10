@@ -1,9 +1,9 @@
 # curated training set?: no
-# augmentation?: no
+# augmentation?: yes
 # for which CNN backbone?: None
 # Raw images?: yes (224x224x3) - input dimensions for DenseNet201
 # Candidate layer?: None
-# Classifier: XGBoost
+# Classifier: gcForestCS
 
 #import necessary libraries
 
@@ -37,7 +37,9 @@ from cassava_leaf_disease_classification.modelling.src.multi_grained_scanning.ut
 #sys.path.append('./modelling/src/multi_grained_scanning/utils/gcForestCS/lib/gcForest')
 #from gcforest import GCForest
 
-import xgboost as xgb
+from itertools import product
+import time
+import tracemalloc
 
 ###################### Importing Data ###################################
 
@@ -94,10 +96,10 @@ import xgboost as xgb
 
 # print('Feature extraction complete!\n')
 
-print('Loading training images and associated labels...\n')
+print('Loading balanced set of training images and associated labels...\n')
 
-x_train = np.load('/scratch/crwlia001/x_train.npy')
-y_train = np.load('/scratch/crwlia001/y_train.npy')
+x_train = np.load('/scratch/crwlia001/x_train_raw_balanced.npy')
+y_train = np.load('/scratch/crwlia001/y_train_raw_balanced.npy')
 
 print('training images and associated labels loaded!\n')
 
@@ -108,65 +110,137 @@ y_val = np.load('/scratch/crwlia001/y_val.npy')
 
 print('validation images and associated labels loaded!\n')
 
-################## Reshaping input for XGBoost #############################
+################## Performing hyperparameter gridsearch #######################
 
-print('Preparing images for XGBoost...\n')
+################## Multi-grained scanning ##################################
 
-#Reshape 4D images arrays (n_obs, height, width, channels) into 2D vector (n_obs, n_elements)
-x_train = reshape_inputs(x_train)
-x_val = reshape_inputs(x_val)
+print('Performing hyperparameter gridsearch...\n')
 
-################## Fitting raw data to XGBoost model #######################
+#specify the different hyperparameters you wish to tune along with the associated values
+#combs_mgs = [(1, False), (1, True), (2, True)]
+#combs_ca = [(1, False), (1, True), (2, True)]
 
-print('\nPerforming hyperparameter grid search...\n')
+combs_mgs = [(1, False), (1, True)]
+combs_ca = [(1, False)]
 
-#Specific the values for hyperparameters during gridsearch
-param_grid = {
-    "n_estimators": [2,4],
-    "max_depth": [2,4]
-    }
+#produce a list of all of the different hyperparameter combinations
+hyperparameter_comb = [_ for _ in product(combs_mgs, combs_ca)]
 
-#create xgb model instance
-xgb_model = xgb.XGBClassifier()
+## Reshape the training and validation inputs to format needed for multi-grained scanning (n_images, n_channels, width, height)
+x_train = x_train.reshape(x_train.shape[0], x_train.shape[3], x_train.shape[1], x_train.shape[2])
+x_val = x_val.reshape(x_val.shape[0], x_val.shape[3], x_val.shape[1], x_val.shape[2])
 
-#specify how to perform gridsearch (5-fold CV)
-grid_search = GridSearchCV(
-    estimator=xgb_model,
-    param_grid=param_grid,
-    scoring = 'f1_weighted',
-    n_jobs = 1,
-    cv = 5,
-    verbose=True
-)
+#create an empty dictionary which will be populated with the hyperparameter combination (key) along with the confusion matrix array (value)
+conf_mats = {}
 
-#Perform gridsearch
-grid_search.fit(x_train, y_train)
+#create an empty dictionary which will be populated with the hyperparameter combination (key) along with the peak RAM usage during training and prediction (value)
+mem_usage_training = {}
+mem_usage_prediction = {}
 
-#get best model hyperparameter combination
-grid_search.best_estimator_
+#create empty dictionaries which will be populated with the hyperparameter combination (key) along with the execution times for training and prediction (value)
+training_time = {}
+prediction_time = {}
+
+for comb in hyperparameter_comb:
+
+  #assign hyperparameters to variables
+  n_estimators_mgs, tree_diversity_mgs = comb[0]
+  n_estimators_ca, tree_diversity_ca = comb[1]
+
+  print('Fitting gcForestCS model using the following hyperparameter settings:\nn_estimators: {}, tree_diversity_mgs: {}, n_estimators_ca: {}, tree_diversity_ca: {}\n'.format(n_estimators_mgs, tree_diversity_mgs, n_estimators_ca, tree_diversity_ca))
+
+  #get model configuration
+  config = build_gcforestCS(n_estimators_mgs = n_estimators_mgs,
+                      	    tree_diversity_mgs = tree_diversity_mgs,
+                            n_estimators_ca = n_estimators_ca,
+                            tree_diversity_ca = tree_diversity_ca)
+
+  #create a model instance using model configuration
+  cnn_gc = GCForestCS(config)
+
+  #initialise variables to monitor RAM usage and execution time during training
+  tracemalloc.start()
+  #tracemalloc.reset_peak()
+  start_time_training = time.process_time()
+
+  #fit model to training data
+  cnn_gc.fit_transform(x_train, y_train)
+
+  #terminate monitoring of RAM usage and execution time
+  end_time_training = time.process_time()
+  first_size, first_peak = tracemalloc.get_traced_memory()
+  tracemalloc.stop()
+
+  #determine training time and RAM usage
+  training_exec_time = end_time_training - start_time_training
+  #memory_usage_training = tracemalloc.get_traced_memory()
+
+  #assign these values to respective dictionaries
+  mem_usage_training[str(comb)] = first_peak / 1000000 #convert from bytes to megabytes
+  training_time[str(comb)] = training_exec_time #in seconds
+
+  ##repeat the above for predictions
+  start_time_predictions = time.process_time()
+  tracemalloc.start()
+
+  #perform predictions
+  y_val_pred = cnn_gc.predict(x_val)
+
+  end_time_predictions = time.process_time()
+  second_size, second_peak = tracemalloc.get_traced_memory()
+  tracemalloc.stop()
+
+  prediction_exec_time = end_time_predictions - start_time_predictions
+  memory_usage_prediction = tracemalloc.get_traced_memory()
+
+  #assign these values to respective dictionaries
+  mem_usage_prediction[str(comb)] = second_peak / 1000000 #convert from bytes to megabytes
+  prediction_time[str(comb)] = prediction_exec_time #in seconds
+
+  #produce confusion matrix
+  cf_matrix = confusion_matrix(y_val, y_val_pred)
+
+  #calculate weighted f1-score (to account for class imbalance)
+  #f1 = f1_score(y_val, y_val_pred, average='weighted')
+
+  #add the result along with the hyperparameter selected to 'results_dict'
+  #results[str(comb)] = f1
+
+  #add the result along with the hyperparameter selected to 'results_dict'
+  conf_mats[str(comb)] = cf_matrix
+
+################# Saving results from gridsearch ############################
+
+np.save('/home/combination_2/crwlia001/model_comb_2_conf_mats.npy', conf_mats)
+np.save('/home/combination_2/crwlia001/model_comb_2_mem_usage_training.npy', mem_usage_training)
+np.save('/home/combination_2/crwlia001/model_comb_2_mem_usage_prediction.npy', mem_usage_prediction)
+np.save('/home/combination_2/crwlia001/model_comb_2_training_time.npy', training_time)
+np.save('/home/combination_2/crwlia001/model_comb_2_prediction_time.npy', prediction_time)
+
+#############################################################################
 
 
-# ################## Predictions ##############################################################
+# # ################## Predictions ##############################################################
 
-print('\nPerforming predictions on validation set...\n')
+# print('\nPerforming predictions on validation set...\n')
 
-# # #feed validation data outputted from MGS into cascade forest classifier to produce predictions
-y_val_pred = gc.predict(x_val)
+# # # #feed validation data outputted from MGS into cascade forest classifier to produce predictions
+# y_val_pred = gc.predict(x_val)
 
-# # #produce confusion matrix from 'y_pred' and 'y_val'
-cf_matrix = confusion_matrix(y_val, y_val_pred)
+# # # #produce confusion matrix from 'y_pred' and 'y_val'
+# cf_matrix = confusion_matrix(y_val, y_val_pred)
 
-#################### Saving confusion matrix #########################################
+# #################### Saving confusion matrix #########################################
 
-#np.save('/scratch/crwlia001/cf_mat_nc_na_raw_img_gc_cs.npy', cf_matrix)
+# #np.save('/scratch/crwlia001/cf_mat_nc_na_raw_img_gc_cs.npy', cf_matrix)
 
-################### Calculating F1-score ########################################
+# ################### Calculating F1-score ########################################
 
-print('\nCalculated model metrics:\n')
+# print('\nCalculated model metrics:\n')
 
-#calculate weighted f1-score (to account for class imbalance) and overall accuracy (OA)
-f1 = f1_score(y_val, y_val_pred, average='weighted')
-acc = accuracy_score(y_val, y_val_pred) * 100
+# #calculate weighted f1-score (to account for class imbalance) and overall accuracy (OA)
+# f1 = f1_score(y_val, y_val_pred, average='weighted')
+# acc = accuracy_score(y_val, y_val_pred) * 100
 
-print("Validation weighted f1-score: {:.3f}".format(f1))
-print("Validation overall accuracy: {:.3f}%".format(acc))
+# print("Validation weighted f1-score: {:.3f}".format(f1))
+# print("Validation overall accuracy: {:.3f}%".format(acc))
