@@ -110,6 +110,13 @@ y_val = np.load('/scratch/crwlia001/y_val.npy')
 
 print('validation images and associated labels loaded!\n')
 
+print('Loading test images and associated labels...\n')
+
+x_test = np.load('/scratch/crwlia001/x_test.npy')
+y_test = np.load('/scratch/crwlia001/y_test.npy')
+
+print('test images and associated labels loaded!\n')
+
 ################## Performing hyperparameter gridsearch #######################
 
 ################## Multi-grained scanning ##################################
@@ -129,17 +136,23 @@ hyperparameter_comb = [_ for _ in product(combs_mgs, combs_ca)]
 ## Reshape the training and validation inputs to format needed for multi-grained scanning (n_images, n_channels, width, height)
 x_train = x_train.reshape(x_train.shape[0], x_train.shape[3], x_train.shape[1], x_train.shape[2])
 x_val = x_val.reshape(x_val.shape[0], x_val.shape[3], x_val.shape[1], x_val.shape[2])
+x_test = x_test.reshape(x_test.shape[0], x_test.shape[3], x_test.shape[1], x_test.shape[2])
 
 #create an empty dictionary which will be populated with the hyperparameter combination (key) along with the confusion matrix array (value)
-conf_mats = {}
+conf_mats_val = {}
+weighted_f1_scores_val = {}
+conf_mats_test = {}
+weighted_f1_scores_test = {}
 
 #create an empty dictionary which will be populated with the hyperparameter combination (key) along with the peak RAM usage during training and prediction (value)
 mem_usage_training = {}
-mem_usage_prediction = {}
+mem_usage_prediction_val = {}
+mem_usage_prediction_test = {}
 
 #create empty dictionaries which will be populated with the hyperparameter combination (key) along with the execution times for training and prediction (value)
 training_time = {}
-prediction_time = {}
+prediction_time_val = {}
+prediction_time_test = {}
 
 for comb in hyperparameter_comb:
 
@@ -180,25 +193,48 @@ for comb in hyperparameter_comb:
   training_time[str(comb)] = training_exec_time #in seconds
 
   ##repeat the above for predictions
-  start_time_predictions = time.process_time()
+  start_time_predictions_val = time.process_time()
   tracemalloc.start()
 
   #perform predictions
   y_val_pred = cnn_gc.predict(x_val)
 
-  end_time_predictions = time.process_time()
+  end_time_predictions_val = time.process_time()
   second_size, second_peak = tracemalloc.get_traced_memory()
   tracemalloc.stop()
 
-  prediction_exec_time = end_time_predictions - start_time_predictions
-  memory_usage_prediction = tracemalloc.get_traced_memory()
+  prediction_exec_time_val = end_time_predictions_val - start_time_predictions_val
+  #memory_usage_prediction = tracemalloc.get_traced_memory()
 
   #assign these values to respective dictionaries
-  mem_usage_prediction[str(comb)] = second_peak / 1000000 #convert from bytes to megabytes
-  prediction_time[str(comb)] = prediction_exec_time #in seconds
+  mem_usage_prediction_val[str(comb)] = second_peak / 1000000 #convert from bytes to megabytes
+  prediction_time_val[str(comb)] = prediction_exec_time_val #in seconds
 
   #produce confusion matrix
-  cf_matrix = confusion_matrix(y_val, y_val_pred)
+  cf_matrix_val = confusion_matrix(y_val, y_val_pred)
+  conf_mats_val[str(comb)] = cf_matrix_val
+  
+  ##Repeat the above for test set
+  start_time_predictions_test = time.process_time()
+  tracemalloc.start()
+
+  #perform predictions
+  y_test_pred = cnn_gc.predict(x_test)
+
+  end_time_predictions_test = time.process_time()
+  third_size, third_peak = tracemalloc.get_traced_memory()
+  tracemalloc.stop()
+
+  prediction_exec_time_test = end_time_predictions_test - start_time_predictions_test
+  #memory_usage_prediction = tracemalloc.get_traced_memory()
+
+  #assign these values to respective dictionaries
+  mem_usage_prediction_test[str(comb)] = third_peak / 1000000 #convert from bytes to megabytes
+  prediction_time_test[str(comb)] = prediction_exec_time_test #in seconds
+
+  #produce confusion matrix
+  cf_matrix_test = confusion_matrix(y_test, y_test_pred)
+  conf_mats_test[str(comb)] = cf_matrix_test
 
   #calculate weighted f1-score (to account for class imbalance)
   #f1 = f1_score(y_val, y_val_pred, average='weighted')
@@ -207,15 +243,28 @@ for comb in hyperparameter_comb:
   #results[str(comb)] = f1
 
   #add the result along with the hyperparameter selected to 'results_dict'
-  conf_mats[str(comb)] = cf_matrix
+  #conf_mats[str(comb)] = cf_matrix
 
 ################# Saving results from gridsearch ############################
 
-np.save('/home/combination_2/crwlia001/model_comb_2_conf_mats.npy', conf_mats)
-np.save('/home/combination_2/crwlia001/model_comb_2_mem_usage_training.npy', mem_usage_training)
-np.save('/home/combination_2/crwlia001/model_comb_2_mem_usage_prediction.npy', mem_usage_prediction)
-np.save('/home/combination_2/crwlia001/model_comb_2_training_time.npy', training_time)
-np.save('/home/combination_2/crwlia001/model_comb_2_prediction_time.npy', prediction_time)
+#confusion matrices
+np.save('/home/crwlia001/combination_2/model_comb_2_default_raw_conf_mats_val.npy', conf_mats_val)
+np.save('/home/crwlia001/combination_2/model_comb_2_default_raw_conf_mats_test.npy', conf_mats_test)
+
+#weighted f1-scores
+np.save('/home/crwlia001/combination_2/model_comb_2_default_raw_f1_val.npy', weighted_f1_scores_val)
+np.save('/home/crwlia001/combination_2/model_comb_2_default_raw_f1_test.npy', weighted_f1_scores_test)
+
+#peak memory usage
+np.save('/home/crwlia001/combination_2/model_comb_2_default_raw_mem_usage_training.npy', mem_usage_training)
+np.save('/home/crwlia001/combination_2/model_comb_2_default_raw_mem_usage_prediction_val.npy', mem_usage_prediction_val)
+np.save('/home/crwlia001/combination_2/model_comb_2_default_raw_mem_usage_prediction_test.npy', mem_usage_prediction_test)
+
+#training and prediction times
+np.save('/home/crwlia001/combination_2/model_comb_2_default_raw_training_time.npy', training_time)
+np.save('/home/crwlia001/combination_2/model_comb_2_default_raw_prediction_time_val.npy', prediction_time_val)
+np.save('/home/crwlia001/combination_2/model_comb_2_default_raw_prediction_time_test.npy', prediction_time_test)
+
 
 #############################################################################
 
