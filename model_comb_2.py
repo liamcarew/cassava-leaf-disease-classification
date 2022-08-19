@@ -124,11 +124,11 @@ print('test images and associated labels loaded!\n')
 print('Performing hyperparameter gridsearch...\n')
 
 #specify the different hyperparameters you wish to tune along with the associated values
-#combs_mgs = [(1, False), (1, True), (2, True)]
-#combs_ca = [(1, False), (1, True), (2, True)]
+combs_mgs = [(1, False), (1, True), (2, True)]
+combs_ca = [(4, False), (4, True), (8, True)]
 
-combs_mgs = [(1, False), (1, True)]
-combs_ca = [(1, False)]
+# combs_mgs = [(1, False), (1, True)]
+# combs_ca = [(1, False)]
 
 #produce a list of all of the different hyperparameter combinations
 hyperparameter_comb = [_ for _ in product(combs_mgs, combs_ca)]
