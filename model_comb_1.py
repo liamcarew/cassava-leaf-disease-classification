@@ -1,8 +1,8 @@
-# curated training set?: no
-# augmentation?: no
-# CNN backbone: DenseNet201 (Backbone 1)
-# Candidate layer: 28x28x128
-# Classifier: Cascade forest
+# Curated training set?: None
+# Augmentation?: None
+# Feature Extraction?: None
+# CNN backbone: None (raw images)
+# Classifier: gcForestCS
 
 #import necessary libraries
 

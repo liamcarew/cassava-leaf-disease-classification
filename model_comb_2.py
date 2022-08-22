@@ -1,8 +1,7 @@
-# curated training set?: no
-# augmentation?: yes
-# for which CNN backbone?: None
-# Raw images?: yes (224x224x3) - input dimensions for DenseNet201
-# Candidate layer?: None
+# Curated training set?: None
+# Augmentation?: Yes
+# Feature Extraction?: None
+# CNN backbone: None (raw images)
 # Classifier: gcForestCS
 
 #import necessary libraries
