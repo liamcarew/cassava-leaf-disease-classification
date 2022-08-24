@@ -1,7 +1,7 @@
 #import necessary libraries
 
 ##from tensorflow.keras.applications.vgg19 import VGG19
-from tensorflow.keras.applications.mobilenet_v2 import MobileNetV2
+from tensorflow.keras.applications import MobileNetV3Large
 from tensorflow.keras.applications.densenet import DenseNet201
 from tensorflow.keras.layers import Input
 from tensorflow.keras.models import Model
@@ -27,8 +27,8 @@ def build_feature_extractor(input_image_shape, cnn_backbone_name, output_layer_n
             input_shape = input_image_shape,
             pooling = None
             )
-    elif cnn_backbone_name == 'MobileNetV2':
-        backbone = MobileNetV2(
+    elif cnn_backbone_name == 'MobileNetV3Large':
+        backbone = MobileNetV3Large(
             include_top=False,
             weights='imagenet',
             input_tensor = inputs,

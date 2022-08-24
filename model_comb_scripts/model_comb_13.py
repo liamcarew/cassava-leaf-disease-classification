@@ -2,5 +2,5 @@
 # augmentation?: no
 # Feature Extraction?: No
 # Fine-tuning?: Yes
-# CNN backbone: MobileNetV3 (Backbone 2)
+# CNN backbone: MobileNetV3 (Backbone 1)
 # Classifier: FCN
