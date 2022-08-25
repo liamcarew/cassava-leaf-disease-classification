@@ -3,7 +3,7 @@
 ##feature extraction
 import numpy as np
 from tensorflow.keras.applications.densenet import DenseNet201
-from tensorflow.keras.applications import MobileNetV3Large
+#from tensorflow.keras.applications import MobileNetV3Large
 from tensorflow.keras.layers import Input
 from tensorflow.keras.models import Model
 from cassava_leaf_disease_classification.modelling.src.cnn_feature_extractor.utils.build_feature_extractor import build_feature_extractor
@@ -123,10 +123,10 @@ x_test = np.array(x_test)
 print('Feature extraction complete!\n')
 
 #Save feature maps to specified directory
-np.save('/scratch/crwlia001/data/densenet201_fmaps/original/candidate_layer_1/densenet201_cl1_og_train.npy', x_train)
-np.save('/scratch/crwlia001/data/densenet201_fmaps/original/candidate_layer_1/densenet201_cl1_og_val.npy', x_val)
-np.save('/scratch/crwlia001/data/densenet201_fmaps/original/candidate_layer_1/densenet201_cl1_og_test.npy', x_test)
+np.save('/scratch/crwlia001/data/densenet201_fmaps/original/candidate_layer_1/densenet201_cl1_og_x_train.npy', x_train)
+np.save('/scratch/crwlia001/data/densenet201_fmaps/original/candidate_layer_1/densenet201_cl1_og_x_val.npy', x_val)
+np.save('/scratch/crwlia001/data/densenet201_fmaps/original/candidate_layer_1/densenet201_cl1_og_x_test.npy', x_test)
 
 #Save memory usage and execution time dictionaries to specified dictionary
-np.save('/home/crwlia001/combination_3/densenet201_feature_extraction_memory_usage_og.npy', feature_extraction_memory_usage)
-np.save('/home/crwlia001/combination_3/densenet201_feature_extraction_time_og.npy', feature_extraction_time)
+np.save('/home/crwlia001/combination_3/densenet201_cl1_og_feature_extraction_memory_usage.npy', feature_extraction_memory_usage)
+np.save('/home/crwlia001/combination_3/densenet201_cl1_og_feature_extraction_time.npy', feature_extraction_time)

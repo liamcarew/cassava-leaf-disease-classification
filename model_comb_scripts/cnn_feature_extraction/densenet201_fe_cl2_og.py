@@ -17,8 +17,8 @@ import tracemalloc
 #training set
 print('Loading training images and associated labels...\n')
 
-x_train = np.load('/scratch/crwlia001/data/augmented_training_set/x_train_raw_balanced.npy')
-y_train = np.load('/scratch/crwlia001/data/augmented_training_set/y_train_raw_balanced.npy')
+x_train = np.load('/scratch/crwlia001/data/original_training_set/x_train.npy')
+y_train = np.load('/scratch/crwlia001/data/y_train.npy')
 
 print('training images and associated labels loaded!\n')
 
@@ -43,7 +43,7 @@ print('test images and associated labels loaded!\n')
 print('Building CNN feature extractor...\n')
 
 #Build pre-trained CNN feature extractor using model run specifications
-cnn_feature_extractor = build_feature_extractor(input_image_shape = (224, 224, 3), cnn_backbone_name = 'DenseNet201', output_layer_name = 'pool3_conv') #(28x28x256)
+cnn_feature_extractor = build_feature_extractor(input_image_shape = (224, 224, 3), cnn_backbone_name = 'DenseNet201', output_layer_name = 'pool4_conv') #(14x14x896)
 
 print('Performing feature extraction...\n')
 
@@ -123,10 +123,10 @@ x_test = np.array(x_test)
 print('Feature extraction complete!\n')
 
 #Save feature maps to specified directory
-np.save('/scratch/crwlia001/data/densenet201_fmaps/augmented/candidate_layer_1/densenet201_cl1_aug_x_train.npy', x_train)
-np.save('/scratch/crwlia001/data/densenet201_fmaps/augmented/candidate_layer_1/densenet201_cl1_aug_x_val.npy', x_val)
-np.save('/scratch/crwlia001/data/densenet201_fmaps/augmented/candidate_layer_1/densenet201_cl1_aug_x_test.npy', x_test)
+np.save('/scratch/crwlia001/data/densenet201_fmaps/original/candidate_layer_2/densenet201_cl2_og_x_train.npy', x_train)
+np.save('/scratch/crwlia001/data/densenet201_fmaps/original/candidate_layer_2/densenet201_cl2_og_x_val.npy', x_val)
+np.save('/scratch/crwlia001/data/densenet201_fmaps/original/candidate_layer_2/densenet201_cl2_og_x_test.npy', x_test)
 
 #Save memory usage and execution time dictionaries to specified dictionary
-np.save('/home/crwlia001/combination_5/densenet201_cl1_aug_feature_extraction_memory_usage.npy', feature_extraction_memory_usage)
-np.save('/home/crwlia001/combination_5/densenet201_cl1_aug_feature_extraction_time.npy', feature_extraction_time)
+np.save('/home/crwlia001/combination_4/densenet201_cl2_og_feature_extraction_memory_usage.npy', feature_extraction_memory_usage)
+np.save('/home/crwlia001/combination_4/densenet201_cl2_og_feature_extraction_time.npy', feature_extraction_time)

@@ -140,8 +140,10 @@ x_test = x_test.reshape(x_test.shape[0], x_test.shape[3], x_test.shape[1], x_tes
 #create an empty dictionary which will be populated with the hyperparameter combination (key) along with the confusion matrix array (value)
 conf_mats_val = {}
 weighted_f1_scores_val = {}
+oa_val = {}
 conf_mats_test = {}
 weighted_f1_scores_test = {}
+oa_test = {}
 
 #create an empty dictionary which will be populated with the hyperparameter combination (key) along with the peak RAM usage during training and prediction (value)
 mem_usage_training = {}
@@ -212,7 +214,13 @@ for comb in hyperparameter_comb:
   #produce confusion matrix
   cf_matrix_val = confusion_matrix(y_val, y_val_pred)
   conf_mats_val[str(comb)] = cf_matrix_val
-  
+
+  #produce f1-score (this was added in after your model run in case you are wondering why dictionaries are empty)
+  weighted_f1_scores_val[str(comb)] = round(f1_score(y_val, y_val_pred, average='weighted'), 3)
+
+  #produce overall accuracy (this was added in after your model run in case you are wondering why there isn't a dictionary for it)
+  oa_val[str(comb)] = round(accuracy_score(y_val, y_val_pred), 3)
+
   ##Repeat the above for test set
   start_time_predictions_test = time.process_time()
   tracemalloc.start()
@@ -235,6 +243,12 @@ for comb in hyperparameter_comb:
   cf_matrix_test = confusion_matrix(y_test, y_test_pred)
   conf_mats_test[str(comb)] = cf_matrix_test
 
+  #produce f1-score (this was added in after your model run in case you are wondering why dictionaries are empty)
+  weighted_f1_scores_test[str(comb)] = round(f1_score(y_test, y_test_pred, average='weighted'), 3)
+
+  #produce overall accuracy (this was added in after your model run in case you are wondering why there isn't a dictionary for it)
+  oa_test[str(comb)] = round(accuracy_score(y_test, y_test_pred), 3)
+
   #calculate weighted f1-score (to account for class imbalance)
   #f1 = f1_score(y_val, y_val_pred, average='weighted')
 
@@ -253,6 +267,10 @@ np.save('/home/crwlia001/combination_2/model_comb_2_default_raw_conf_mats_test.n
 #weighted f1-scores
 np.save('/home/crwlia001/combination_2/model_comb_2_default_raw_f1_val.npy', weighted_f1_scores_val)
 np.save('/home/crwlia001/combination_2/model_comb_2_default_raw_f1_test.npy', weighted_f1_scores_test)
+
+#overall accuracy
+np.save('/home/crwlia001/combination_2/model_comb_2_default_raw_oa_val.npy', oa_val)
+np.save('/home/crwlia001/combination_2/model_comb_2_default_raw_oa_test.npy', oa_test)
 
 #peak memory usage
 np.save('/home/crwlia001/combination_2/model_comb_2_default_raw_mem_usage_training.npy', mem_usage_training)
