@@ -69,25 +69,49 @@
     #return MGS structure in JSON format
 #    return config
 
-def build_gcforestCS(n_estimators_mgs, tree_diversity_mgs, n_estimators_ca, tree_diversity_ca):
+def build_gcforestCS(n_estimators_mgs, tree_diversity_mgs, pooling_mgs, n_estimators_ca, tree_diversity_ca):
 
     config = {}
     net = {}
 
     net["outputs"] = []
-    # net["outputs"].append("win1/3x3/ets")
-    net["outputs"].append("pool/3x3/rf")
-    #net["outputs"].append("pool/4x4/ets")
-    net["outputs"].append("pool/4x4/rf")
-    #net["outputs"].append("pool/5x5/ets")
-    net["outputs"].append("pool/5x5/rf")
-    #net["outputs"].append("pool/9x9/ets")
-    #net["outputs"].append("pool/9x9/rf")
 
+    if not pooling_mgs:
+      net["outputs"].append("win/3x3/rf")
+      net["outputs"].append("win/4x4/rf")
+      net["outputs"].append("win/5x5/rf")
+      if tree_diversity_mgs:
+        net["outputs"].append("win/3x3/ets")
+        net["outputs"].append("win/4x4/ets")
+        net["outputs"].append("win/5x5/ets")
+
+    else:
+      net["outputs"].append("pool/3x3/rf")
+      net["outputs"].append("pool/4x4/rf")
+      net["outputs"].append("pool/5x5/rf")
+      if tree_diversity_mgs:
+        net["outputs"].append("pool/3x3/ets")
+        net["outputs"].append("pool/4x4/ets")
+        net["outputs"].append("pool/5x5/ets")
+
+    
+      # net["outputs"].append("win1/3x3/ets")
+      #net["outputs"].append("pool/3x3/rf")
+      #net["outputs"].append("pool/4x4/ets")
+      #net["outputs"].append("pool/4x4/rf")
+      #net["outputs"].append("pool/5x5/ets")
+      #net["outputs"].append("pool/5x5/rf")
+      #net["outputs"].append("pool/9x9/ets")
+      #net["outputs"].append("pool/9x9/rf")
+
+    # if tree_diversity_mgs:
+    #   net["outputs"].append("pool/3x3/ets")
+    #   net["outputs"].append("pool/4x4/ets")
+    #   net["outputs"].append("pool/5x5/ets")
+
+    #work out number of total estimators in each type of forest for MGS
     if tree_diversity_mgs:
-      net["outputs"].append("pool/3x3/ets")
-      net["outputs"].append("pool/4x4/ets")
-      net["outputs"].append("pool/5x5/ets")
+      n_estimators_mgs = n_estimators_mgs / 2
 
     #3x3 sliding window
     layer_3x3 = {}
@@ -215,51 +239,60 @@ def build_gcforestCS(n_estimators_mgs, tree_diversity_mgs, n_estimators_ca, tree
     #layer_9x9["win_y"] = 9
 
     #pooling layer
-    layers_pool = {}
-    layers_pool["type"] = "FGPoolLayer"
-    layers_pool["name"] = "pool"
-    layers_pool["bottoms"] = []
-    #layers_pool["bottoms"].append("win/3x3/ets")
-    layers_pool["bottoms"].append("win/3x3/rf")
-    #layers_pool["bottoms"].append("win/4x4/ets")
-    layers_pool["bottoms"].append("win/4x4/rf")
-    #layers_pool["bottoms"].append("win/5x5/ets")
-    layers_pool["bottoms"].append("win/5x5/rf")
-    #layers_pool["bottoms"].append("win/7x7/ets")
-    #layers_pool["bottoms"].append("win/7x7/rf")
-    #layers_pool["bottoms"].append("win/9x9/ets")
-    #layers_pool["bottoms"].append("win/9x9/rf")
+    if pooling_mgs:
+      
+      layers_pool = {}
+      layers_pool["type"] = "FGPoolLayer"
+      layers_pool["name"] = "pool"
 
-    if tree_diversity_mgs:
-      layers_pool["bottoms"].append("win/3x3/ets")
-      layers_pool["bottoms"].append("win/4x4/ets")
-      layers_pool["bottoms"].append("win/5x5/ets")
+      layers_pool["bottoms"] = []
+      #layers_pool["bottoms"].append("win/3x3/ets")
+      layers_pool["bottoms"].append("win/3x3/rf")
+      #layers_pool["bottoms"].append("win/4x4/ets")
+      layers_pool["bottoms"].append("win/4x4/rf")
+      #layers_pool["bottoms"].append("win/5x5/ets")
+      layers_pool["bottoms"].append("win/5x5/rf")
+      #layers_pool["bottoms"].append("win/7x7/ets")
+      #layers_pool["bottoms"].append("win/7x7/rf")
+      #layers_pool["bottoms"].append("win/9x9/ets")
+      #layers_pool["bottoms"].append("win/9x9/rf")
 
-    layers_pool["tops"] = []
-    #layers_pool["tops"].append("pool/5x5/ets")
-    layers_pool["tops"].append("pool/3x3/rf")
-    #layers_pool["tops"].append("pool/7x7/ets")
-    layers_pool["tops"].append("pool/4x4/rf")
-    #layers_pool["tops"].append("pool/9x9/ets")
-    layers_pool["tops"].append("pool/5x5/rf")
+      if tree_diversity_mgs:
+        layers_pool["bottoms"].append("win/3x3/ets")
+        layers_pool["bottoms"].append("win/4x4/ets")
+        layers_pool["bottoms"].append("win/5x5/ets")
 
-    if tree_diversity_mgs:
-      layers_pool["tops"].append("pool/3x3/ets")
-      layers_pool["tops"].append("pool/4x4/ets")
-      layers_pool["tops"].append("pool/5x5/ets")
+      layers_pool["tops"] = []
+      #layers_pool["tops"].append("pool/5x5/ets")
+      layers_pool["tops"].append("pool/3x3/rf")
+      #layers_pool["tops"].append("pool/7x7/ets")
+      layers_pool["tops"].append("pool/4x4/rf")
+      #layers_pool["tops"].append("pool/9x9/ets")
+      layers_pool["tops"].append("pool/5x5/rf")
 
-    layers_pool["pool_method"] = "avg"
-    layers_pool["win_x"] = 2
-    layers_pool["win_y"] = 2
+      if tree_diversity_mgs:
+        layers_pool["tops"].append("pool/3x3/ets")
+        layers_pool["tops"].append("pool/4x4/ets")
+        layers_pool["tops"].append("pool/5x5/ets")
+
+      layers_pool["pool_method"] = "avg"
+      layers_pool["win_x"] = 2
+      layers_pool["win_y"] = 2
 
     layers = []
     layers.append(layer_3x3)
     layers.append(layer_4x4)
     layers.append(layer_5x5)
-    layers.append(layers_pool)
+    if pooling_mgs:
+      layers.append(layers_pool)
     net["layers"] = layers
 
     #cascade module
+
+    #work out number of total estimators in each type of forest for CF
+    if tree_diversity_ca:
+      n_estimators_ca = n_estimators_ca / 2
+
     ca_config = {}
     ca_config["random_state"] = 1
     ca_config["max_layers"] = 20
