@@ -80,13 +80,15 @@ def gcForestCS_model_config(x_train_path, y_train_path, x_val_path, y_val_path, 
 
         #assign hyperparameters to variables
         n_estimators_mgs, tree_diversity_mgs = comb[0]
-        n_estimators_ca, tree_diversity_ca = comb[1]
+        pooling_mgs = comb[1]
+        n_estimators_ca, tree_diversity_ca = comb[2]
 
         print('Fitting gcForestCS model using the following hyperparameter settings:\nn_estimators: {}, tree_diversity_mgs: {}, n_estimators_ca: {}, tree_diversity_ca: {}\n'.format(n_estimators_mgs, tree_diversity_mgs, n_estimators_ca, tree_diversity_ca))
 
         #get model configuration
         config = build_gcforestCS(n_estimators_mgs = n_estimators_mgs,
                                     tree_diversity_mgs = tree_diversity_mgs,
+                                    pooling_mgs = pooling_mgs,
                                     n_estimators_ca = n_estimators_ca,
                                     tree_diversity_ca = tree_diversity_ca)
 
