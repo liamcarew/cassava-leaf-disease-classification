@@ -15,7 +15,7 @@ from itertools import product
 import time
 import tracemalloc
 
-def gcForestCS_model_config(x_train_path, y_train_path, x_val_path, y_val_path, x_test_path, y_test_path, combs_mgs, combs_ca, model_combination_num):
+def gcForestCS_model_config(x_train_path, y_train_path, x_val_path, y_val_path, x_test_path, y_test_path, combs_mgs, combs_pooling_mgs, combs_ca, model_combination_num):
 
     ###################### Importing Data ###################################
 
@@ -45,7 +45,7 @@ def gcForestCS_model_config(x_train_path, y_train_path, x_val_path, y_val_path, 
     print('Performing hyperparameter gridsearch...\n')
 
     #produce a list of all of the different hyperparameter combinations
-    hyperparameter_comb = [_ for _ in product(combs_mgs, combs_ca)]
+    hyperparameter_comb = [_ for _ in product(combs_mgs, combs_pooling_mgs, combs_ca)]
 
     # Reshape the training and validation inputs to format needed for multi-grained scanning (n_images, n_channels, width, height)
     x_train = x_train.reshape(x_train.shape[0], x_train.shape[3], x_train.shape[1], x_train.shape[2])
@@ -69,6 +69,12 @@ def gcForestCS_model_config(x_train_path, y_train_path, x_val_path, y_val_path, 
     training_time = {}
     prediction_time_val = {}
     prediction_time_test = {}
+
+    #Finally, create a dictionary to measure overall execution time during the gridsearch
+    hyp_gridsearch_time = {}
+
+    #start measurement of hyperparameter gridsearch execution time
+    start_time_hyp_gridsearch = time.process_time()
 
     for comb in hyperparameter_comb:
 
@@ -164,26 +170,36 @@ def gcForestCS_model_config(x_train_path, y_train_path, x_val_path, y_val_path, 
         #produce overall accuracy (this was added in after your model run in case you are wondering why there isn't a dictionary for it)
         oa_test[str(comb)] = round(accuracy_score(y_test, y_test_pred), 3)
 
+    #end measurement of running time for gridsearch
+    end_time_hyp_gridsearch = time.process_time()
+
+    #determine execution time for gridsearch and add it to dictionary
+    hyp_gridsearch_exec_time = end_time_hyp_gridsearch - start_time_hyp_gridsearch
+    hyp_gridsearch_time['model_comb_{}'.format(model_combination_num)] = hyp_gridsearch_exec_time
+
     ################# Saving results from gridsearch ############################
 
     #confusion matrices
-    np.save('/home/crwlia001/combination_{}/model_comb_{}_default_raw_conf_mats_val.npy'.format(model_combination_num, model_combination_num), conf_mats_val)
-    np.save('/home/crwlia001/combination_{}/model_comb_{}_default_raw_conf_mats_test.npy'.format(model_combination_num, model_combination_num), conf_mats_test)
+    np.save('/home/crwlia001/model_combination_results/combination_{}/model_comb_{}_conf_mats_val.npy'.format(model_combination_num, model_combination_num), conf_mats_val)
+    np.save('/home/crwlia001/model_combination_results/combination_{}/model_comb_{}_conf_mats_test.npy'.format(model_combination_num, model_combination_num), conf_mats_test)
 
     #weighted f1-scores
-    np.save('/home/crwlia001/combination_{}/model_comb_{}_default_raw_f1_val.npy'.format(model_combination_num, model_combination_num), weighted_f1_scores_val)
-    np.save('/home/crwlia001/combination_{}/model_comb_{}_default_raw_f1_test.npy'.format(model_combination_num, model_combination_num), weighted_f1_scores_test)
+    np.save('/home/crwlia001/model_combination_results/combination_{}/model_comb_{}_f1_val.npy'.format(model_combination_num, model_combination_num), weighted_f1_scores_val)
+    np.save('/home/crwlia001/model_combination_results/combination_{}/model_comb_{}_f1_test.npy'.format(model_combination_num, model_combination_num), weighted_f1_scores_test)
 
     #overall accuracy
-    np.save('/home/crwlia001/combination_{}/model_comb_{}_default_raw_oa_val.npy'.format(model_combination_num, model_combination_num), oa_val)
-    np.save('/home/crwlia001/combination_{}/model_comb_{}_default_raw_oa_test.npy'.format(model_combination_num, model_combination_num), oa_test)
+    np.save('/home/crwlia001/model_combination_results/combination_{}/model_comb_{}_oa_val.npy'.format(model_combination_num, model_combination_num), oa_val)
+    np.save('/home/crwlia001/model_combination_results/combination_{}/model_comb_{}_oa_test.npy'.format(model_combination_num, model_combination_num), oa_test)
 
     #peak memory usage
-    np.save('/home/crwlia001/combination_{}/model_comb_{}_default_raw_mem_usage_training.npy'.format(model_combination_num, model_combination_num), mem_usage_training)
-    np.save('/home/crwlia001/combination_{}/model_comb_{}_default_raw_mem_usage_prediction_val.npy'.format(model_combination_num, model_combination_num), mem_usage_prediction_val)
-    np.save('/home/crwlia001/combination_{}/model_comb_{}_default_raw_mem_usage_prediction_test.npy'.format(model_combination_num, model_combination_num), mem_usage_prediction_test)
+    np.save('/home/crwlia001/model_combination_results/combination_{}/model_comb_{}_mem_usage_training.npy'.format(model_combination_num, model_combination_num), mem_usage_training)
+    np.save('/home/crwlia001/model_combination_results/combination_{}/model_comb_{}_mem_usage_prediction_val.npy'.format(model_combination_num, model_combination_num), mem_usage_prediction_val)
+    np.save('/home/crwlia001/model_combination_results/combination_{}/model_comb_{}_mem_usage_prediction_test.npy'.format(model_combination_num, model_combination_num), mem_usage_prediction_test)
 
     #training and prediction times
-    np.save('/home/crwlia001/combination_{}/model_comb_{}_default_raw_training_time.npy'.format(model_combination_num, model_combination_num), training_time)
-    np.save('/home/crwlia001/combination_{}/model_comb_{}_default_raw_prediction_time_val.npy'.format(model_combination_num, model_combination_num), prediction_time_val)
-    np.save('/home/crwlia001/combination_{}/model_comb_{}_default_raw_prediction_time_test.npy'.format(model_combination_num, model_combination_num), prediction_time_test)
+    np.save('/home/crwlia001/model_combination_results/combination_{}/model_comb_{}_training_time.npy'.format(model_combination_num, model_combination_num), training_time)
+    np.save('/home/crwlia001/model_combination_results/combination_{}/model_comb_{}_prediction_time_val.npy'.format(model_combination_num, model_combination_num), prediction_time_val)
+    np.save('/home/crwlia001/model_combination_results/combination_{}/model_comb_{}_prediction_time_test.npy'.format(model_combination_num, model_combination_num), prediction_time_test)
+
+    #hyperparameter gridsearch execution time
+    np.save('/home/crwlia001/model_combination_results/combination_{}/model_comb_{}_hyp_gridsearch_time.npy'.format(model_combination_num, model_combination_num), hyp_gridsearch_time)
