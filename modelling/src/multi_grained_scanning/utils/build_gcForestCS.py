@@ -111,7 +111,7 @@ def build_gcforestCS(n_estimators_mgs, tree_diversity_mgs, pooling_mgs, n_estima
 
     #work out number of total estimators in each type of forest for MGS
     if tree_diversity_mgs:
-      n_estimators_mgs = n_estimators_mgs / 2
+      n_estimators_mgs = n_estimators_mgs // 2
 
     #3x3 sliding window
     layer_3x3 = {}

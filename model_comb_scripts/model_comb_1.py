@@ -37,11 +37,8 @@ X_TEST_PATH = '/scratch/crwlia001/data/x_test.npy'
 Y_TEST_PATH = '/scratch/crwlia001/data/y_test.npy'
 
 #specify the different hyperparameters you wish to tune along with the associated values
-#COMBS_MGS = [(1, False), (1, True), (2, True)]
-#COMBS_CA = [(4, False), (4, True), (8, True)]
-
-COMBS_MGS = [(1, True)]
-COMBS_CA = [(4, True)]
+COMBS_MGS = [(2, True)]
+COMBS_CA = [(8, True)]
 COMBS_POOLING_MGS = [False]
 
 #Run hyperparameter gridsearch
