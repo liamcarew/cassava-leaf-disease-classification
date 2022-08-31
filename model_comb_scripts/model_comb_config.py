@@ -19,26 +19,26 @@ def gcForestCS_model_config(x_train_path, y_train_path, x_val_path, y_val_path, 
 
     ###################### Importing Data ###################################
 
-    print('Loading training feature maps...\n')
+    print('Loading training images/Fmaps and labels...\n')
 
     x_train = np.load(x_train_path)
     y_train = np.load(y_train_path)
 
-    print('Training feature maps and associated labels loaded!\n')
+    print('Training images/Fmaps and labels loaded!\n')
 
-    print('Loading validation feature maps and associated labels...\n')
+    print('Loading validation images/Fmaps and labels...\n')
 
     x_val = np.load(x_val_path)
     y_val = np.load(y_val_path)
 
-    print('Validation feature maps and associated labels loaded!\n')
+    print('Validation images/Fmaps and labels loaded!\n')
 
-    print('Loading test feature maps and associated labels...\n')
+    print('Loading test images/Fmaps and labels...\n')
 
     x_test = np.load(x_test_path)
     y_test = np.load(y_test_path)
 
-    print('Test feature maps and associated labels loaded!\n')
+    print('Test images/Fmaps and labels loaded!\n')
 
     ################## Performing gcForestCS hyperparameter gridsearch #######################
 

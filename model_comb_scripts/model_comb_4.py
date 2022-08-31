@@ -19,7 +19,7 @@ from sklearn import utils
 from cassava_leaf_disease_classification.modelling.src.multi_grained_scanning.utils.build_gcForestCS import build_gcforestCS
 #from cassava_leaf_disease_classification.modelling.src.multi_grained_scanning.utils.reshape_inputs import reshape_inputs
 from cassava_leaf_disease_classification.modelling.src.multi_grained_scanning.utils.gcForestCS.lib.gcforest.gcforestCS import GCForestCS
-from cassava_leaf_disease_classification.model_comb_scripts.model_comb_config import gcForestCS_model_config
+from model_comb_config import gcForestCS_model_config
 from itertools import product
 
 ##memory and execution time measurement
@@ -39,11 +39,9 @@ X_TEST_PATH = '/scratch/crwlia001/data/densenet201_fmaps/original/candidate_laye
 Y_TEST_PATH = '/scratch/crwlia001/data/y_test.npy'
 
 #specify the different hyperparameters you wish to tune along with the associated values
-#COMBS_MGS = [(1, False), (1, True), (2, True)]
-#COMBS_CA = [(4, False), (4, True), (8, True)]
-
-COMBS_MGS = [(1, True)]
-COMBS_CA = [(4, True)]
+COMBS_MGS = [(1, False), (2, True), (4, True)]
+COMBS_CA = [(4, False), (8, True), (16, True)]
+COMBS_POOLING_MGS = [False]
 
 #Run hyperparameter gridsearch
 gcForestCS_model_config(
@@ -54,5 +52,6 @@ gcForestCS_model_config(
     x_test_path = X_TEST_PATH,
     y_test_path = Y_TEST_PATH,
     combs_mgs = COMBS_MGS,
+    combs_pooling_mgs = COMBS_POOLING_MGS,
     combs_ca = COMBS_CA,
     model_combination_num = 4)

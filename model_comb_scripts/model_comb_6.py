@@ -19,7 +19,7 @@ from sklearn import utils
 from cassava_leaf_disease_classification.modelling.src.multi_grained_scanning.utils.build_gcForestCS import build_gcforestCS
 #from cassava_leaf_disease_classification.modelling.src.multi_grained_scanning.utils.reshape_inputs import reshape_inputs
 from cassava_leaf_disease_classification.modelling.src.multi_grained_scanning.utils.gcForestCS.lib.gcforest.gcforestCS import GCForestCS
-from cassava_leaf_disease_classification.model_comb_scripts.model_comb_config import gcForestCS_model_config
+from model_comb_config import gcForestCS_model_config
 from itertools import product
 
 ##memory and execution time measurement
