@@ -3,21 +3,29 @@
 ##feature extraction
 import numpy as np
 from tensorflow.keras.applications.densenet import DenseNet201
+from tensorflow import config
 #from tensorflow.keras.applications import MobileNetV3Large
 from tensorflow.keras.layers import Input
 from tensorflow.keras.models import Model
+from tensorflow.data import Dataset, AUTOTUNE
 from cassava_leaf_disease_classification.modelling.src.cnn_feature_extractor.utils.build_feature_extractor import build_feature_extractor
 
 #memory and execution time measurement
 import time
 import tracemalloc
 
+#to allow for GPU RAM measurement, need to configure GPU (uncomment this when running on GPU)
+# gpu_devices = config.list_physical_devices('GPU')
+
+# for gpu in gpu_devices:
+#   config.experimental.set_memory_growth(gpu, True)
+
 ################### Importing Data #############################
 
 #training set
 print('Loading training images and associated labels...\n')
 
-x_train = np.load('/scratch/crwlia001/data/original_training_set/x_train.npy')
+x_train = np.load('/scratch/crwlia001/data/training_set/original/x_train.npy')
 y_train = np.load('/scratch/crwlia001/data/y_train.npy')
 
 print('training images and associated labels loaded!\n')
@@ -53,66 +61,71 @@ BATCH_SIZE = 32
 feature_extraction_memory_usage = {}
 feature_extraction_time = {}
 
+#prepare data before running
+BATCH_SIZE = 32
+
+training_data = Dataset.from_tensor_slices((x_train, y_train)).cache().batch(batch_size = BATCH_SIZE).prefetch(buffer_size=AUTOTUNE)
+validation_data = Dataset.from_tensor_slices((x_val, y_val)).cache().batch(batch_size = BATCH_SIZE).prefetch(buffer_size=AUTOTUNE)
+testing_data = Dataset.from_tensor_slices((x_test, y_test)).cache().batch(batch_size = BATCH_SIZE).prefetch(buffer_size=AUTOTUNE)
+
 ##training set
 
 #initialise memory usage and execution time measurement variables
-tracemalloc.start()
+#tracemalloc.start()
 start_time_training = time.process_time()
 
-x_train = cnn_feature_extractor.predict(x = x_train,
-                                        batch_size = BATCH_SIZE,
-                                        verbose = 1)
+x_train = cnn_feature_extractor.predict(x = training_data, verbose = 1)
 
 #terminate monitoring of RAM usage and execution time
 end_time_training = time.process_time()
-first_size, first_peak = tracemalloc.get_traced_memory()
-tracemalloc.stop()
+#first_size, first_peak = tracemalloc.get_traced_memory()
+#tracemalloc.stop()
 
 #determine execution time
 training_exec_time = end_time_training - start_time_training
 
 #save memory usage and execution time to respective dictionaries
-feature_extraction_memory_usage['train'] = first_peak / 1000000 #convert from bytes to megabytes
+#feature_extraction_memory_usage['train'] = first_peak / 1000000 #convert from bytes to megabytes
 feature_extraction_time['train'] = training_exec_time #in seconds
 
 ##validation set
 
 #initialise memory usage and execution time measurement variables
-tracemalloc.start()
+#tracemalloc.start()
 start_time_val = time.process_time()
 
-x_val = cnn_feature_extractor.predict(x = x_val, batch_size = BATCH_SIZE, verbose = 1)
+x_val = cnn_feature_extractor.predict(x = validation_data, verbose = 1)
 
 #terminate monitoring of RAM usage and execution time
 end_time_val = time.process_time()
-second_size, second_peak = tracemalloc.get_traced_memory()
-tracemalloc.stop()
+#second_size, second_peak = tracemalloc.get_traced_memory()
+#tracemalloc.stop()
 
 #determine execution time
 val_exec_time = end_time_val - start_time_val
 
 #save memory usage and execution time to respective dictionaries
-feature_extraction_memory_usage['val'] = second_peak / 1000000 #convert from bytes to megabytes
+#feature_extraction_memory_usage['val'] = second_peak / 1000000 #convert from bytes to megabytes
 feature_extraction_time['val'] = val_exec_time #in seconds
 
 ##test set
 
 #initialise memory usage and execution time measurement variables
-tracemalloc.start()
+#tracemalloc.start()
 start_time_test = time.process_time()
 
-x_test = cnn_feature_extractor.predict(x = x_test, batch_size = BATCH_SIZE, verbose = 1)
+x_test = cnn_feature_extractor.predict(x = testing_data, verbose = 1)
 
 #terminate monitoring of RAM usage and execution time
 end_time_test = time.process_time()
-third_size, third_peak = tracemalloc.get_traced_memory()
-tracemalloc.stop()
+#third_size, third_peak = tracemalloc.get_traced_memory()
+#tracemalloc.stop()
 
 #determine execution time
 test_exec_time = end_time_test - start_time_test
 
 #save memory usage and execution time to respective dictionaries
-feature_extraction_memory_usage['test'] = third_peak / 1000000 #convert from bytes to megabytes
+#feature_extraction_memory_usage['test'] = third_peak / 1000000 #convert from bytes to megabytes
 feature_extraction_time['test'] = test_exec_time #in seconds
 
 #Convert all to np arrays
@@ -128,5 +141,5 @@ np.save('/scratch/crwlia001/data/densenet201_fmaps/original/candidate_layer_1/de
 np.save('/scratch/crwlia001/data/densenet201_fmaps/original/candidate_layer_1/densenet201_cl1_og_x_test.npy', x_test)
 
 #Save memory usage and execution time dictionaries to specified dictionary
-np.save('/home/crwlia001/combination_3/densenet201_cl1_og_feature_extraction_memory_usage.npy', feature_extraction_memory_usage)
-np.save('/home/crwlia001/combination_3/densenet201_cl1_og_feature_extraction_time.npy', feature_extraction_time)
+np.save('/home/crwlia001/model_combination_results/combination_3/densenet201_cl1_og_feature_extraction_memory_usage.npy', feature_extraction_memory_usage)
+np.save('/home/crwlia001/model_combination_results/combination_3/densenet201_cl1_og_feature_extraction_time.npy', feature_extraction_time)

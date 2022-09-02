@@ -1,5 +1,5 @@
 import numpy as np
-#from sklearn import utils
+from sklearn import utils
 import tensorflow as tf
 import time
 import tracemalloc
@@ -8,7 +8,7 @@ import tracemalloc
 
 print('Loading training images and associated labels...\n')
 
-x_train = np.load('/scratch/crwlia001/data/original_training_set/x_train.npy')
+x_train = np.load('/scratch/crwlia001/data/training_set/original/x_train.npy')
 y_train = np.load('/scratch/crwlia001/data/y_train.npy')
 
 print('training images and associated labels loaded!\n')
@@ -81,7 +81,7 @@ def upsample_minority_class(img_array, label, no_aug_combs, balanced_sample_size
   #IMG_SIZE = (224,224,3)
 
   #create an empty array to populate with augmented images
-  aug_img_array = np.empty([len(img_array)*no_aug_combs, 224, 224, 3], dtype='float32')
+  aug_img_array = np.empty([len(img_array)*no_aug_combs, 224, 224, 3], dtype='uint8')
 
   #also create an associated label array using the class label
   #aug_label_array = np.empty(len(img_array)*no_aug_combs, dtype='float32')
@@ -120,8 +120,8 @@ def upsample_minority_class(img_array, label, no_aug_combs, balanced_sample_size
                                       sample_size = num_aug_imgs_needed,
                                       random_state = 1)
   
-  print(aug_sample_img_array.shape)
-  print(img_array.shape)
+  #print(aug_sample_img_array.shape)
+  #print(img_array.shape)
 
   #combine 'img_array' with 'aug_sample_img_array', and 'label_array' with 'aug_sample_label_array'
   balanced_class_after_aug_imgs = np.vstack((img_array, aug_sample_img_array))
@@ -196,7 +196,7 @@ balanced_x_train = np.vstack((cbb_img_balanced, cbsd_img_balanced, cgm_img_balan
 balanced_y_train = np.ravel(np.hstack((cbb_labels_balanced, cbsd_labels_balanced, cgm_labels_balanced, cmd_labels_balanced, healthy_labels_balanced)))
 
 ##shuffle to remove any structural bias
-#balanced_x_train, balanced_y_train = utils.shuffle(balanced_x_train, balanced_y_train)
+balanced_x_train, balanced_y_train = utils.shuffle(balanced_x_train, balanced_y_train)
 
 #terminate monitoring of RAM usage and execution time
 end_time_training = time.process_time()
@@ -211,8 +211,12 @@ aug_mem_usage['augmentation'] = first_peak / 1000000 #convert from bytes to mega
 aug_time['augmentation'] = training_exec_time #in seconds
 
 #check that you get the correct result
-len(balanced_x_train) == 6000
-len(balanced_y_train) == 6000
+assert len(balanced_x_train) == 6000
+assert len(balanced_y_train) == 6000
+
+#save augmented training images and labels
+np.save('/scratch/crwlia001/data/training_set/balanced/balanced_x_train.npy', balanced_x_train)
+np.save('/scratch/crwlia001/data/training_set/balanced/balanced_y_train.npy', balanced_y_train)
 
 #save dictionaries
 np.save('/home/crwlia001/augmentation/aug_mem_usage.npy', aug_mem_usage)
