@@ -1,7 +1,7 @@
 # curated training set?: no
-# augmentation?: yes
+# augmentation?: no
 # Feature Extraction?: yes
 # Fine-tuning?: no
-# CNN backbone: DenseNet201 (Backbone 1)
-# Candidate layer 2 ('conv4_block48_concat' (14x14x1792))
+# CNN backbone: MobileNetV2 (Backbone 2)
+# Candidate layer 2 ('block_13_expand' #(14x14x576))
 # Classifier: gcForestCS

@@ -25,8 +25,8 @@ import time
 import tracemalloc
 
 #specify training set feature map and associated label paths
-X_TRAIN_PATH = '/scratch/crwlia001/data/augmented_training_set/x_train_raw_balanced.npy'
-Y_TRAIN_PATH = '/scratch/crwlia001/data/augmented_training_set/y_train_raw_balanced.npy'
+X_TRAIN_PATH = '/scratch/crwlia001/data/training_set/balanced/balanced_x_train.npy'
+Y_TRAIN_PATH = '/scratch/crwlia001/data/training_set/balanced/balanced_y_train.npy'
 
 #specify validation set feature map and associated label paths
 X_VAL_PATH = '/scratch/crwlia001/data/x_val.npy'
@@ -37,8 +37,8 @@ X_TEST_PATH = '/scratch/crwlia001/data/x_test.npy'
 Y_TEST_PATH = '/scratch/crwlia001/data/y_test.npy'
 
 #specify the different hyperparameters you wish to tune along with the associated values
-COMBS_MGS = [(1, False), (2, True), (4, True)]
-COMBS_CA = [(4, False), (8, True), (16, True)]
+COMBS_MGS = [(1, False), (2, True), (2, False), (4, True)]
+COMBS_CA = [(4, False), (8, True), (8, False), (16, True)]
 COMBS_POOLING_MGS = [False]
 
 #Run hyperparameter gridsearch
