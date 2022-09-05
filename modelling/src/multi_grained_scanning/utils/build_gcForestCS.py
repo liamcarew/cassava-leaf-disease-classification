@@ -126,12 +126,12 @@ def build_gcforestCS(n_estimators_mgs, tree_diversity_mgs, pooling_mgs, n_estima
     layer_3x3["n_classes"] = 5
     layer_3x3["estimators"] = []
     layer_3x3["estimators"].append(
-        {"n_folds":5,"type":"RandomForestClassifier","n_estimators": n_estimators_mgs,"max_depth": 10,"n_jobs":40,"min_samples_leaf":10})
+        {"n_folds":5,"type":"RandomForestClassifier", "n_estimators": n_estimators_mgs, "max_depth":15, "n_jobs":20, "min_samples_leaf":10})
     
     if tree_diversity_mgs:
       layer_3x3["tops"].append("win/3x3/ets")
       layer_3x3["estimators"].append(
-          {"n_folds":5,"type":"ExtraTreesClassifier","n_estimators": n_estimators_mgs,"max_depth": 10, "n_jobs":40, "min_samples_leaf":10})
+          {"n_folds":5,"type":"ExtraTreesClassifier", "n_estimators": n_estimators_mgs, "max_depth":15, "n_jobs":20, "min_samples_leaf":10})
 
     layer_3x3["stride_x"] = 2
     layer_3x3["stride_y"] = 2

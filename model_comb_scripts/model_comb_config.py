@@ -11,41 +11,77 @@ from sklearn import utils
 from cassava_leaf_disease_classification.modelling.src.multi_grained_scanning.utils.build_gcForestCS import build_gcforestCS
 from cassava_leaf_disease_classification.modelling.src.multi_grained_scanning.utils.reshape_inputs import reshape_inputs
 from cassava_leaf_disease_classification.modelling.src.multi_grained_scanning.utils.gcForestCS.lib.gcforest.gcforestCS import GCForestCS
+from cassava_leaf_disease_classification.modelling.src.cnn_feature_extractor.utils.build_feature_extractor import build_feature_extractor
+from cassava_leaf_disease_classification.modelling.src.cnn_feature_extractor.utils.perform_feature_extraction import perform_feature_extraction
 from itertools import product
 import time
 import tracemalloc
 
-def gcForestCS_model_config(x_train_path, y_train_path, x_val_path, y_val_path, x_test_path, y_test_path, combs_mgs, combs_pooling_mgs, combs_ca, model_combination_num):
+def gcForestCS_gridsearch(data_paths, hyp_settings, model_combination_num, cnn_feature_extraction=False, feature_extraction_settings=None):
 
     ###################### Importing Data ###################################
 
     print('Loading training images/Fmaps and labels...\n')
 
-    x_train = np.load(x_train_path)
-    y_train = np.load(y_train_path)
+    x_train = np.load(data_paths['training_images'])
+    y_train = np.load(data_paths['training_labels'])
 
     print('Training images/Fmaps and labels loaded!\n')
 
     print('Loading validation images/Fmaps and labels...\n')
 
-    x_val = np.load(x_val_path)
-    y_val = np.load(y_val_path)
+    x_val = np.load(data_paths['validation_images'])
+    y_val = np.load(data_paths['validation_labels'])
 
     print('Validation images/Fmaps and labels loaded!\n')
 
     print('Loading test images/Fmaps and labels...\n')
 
-    x_test = np.load(x_test_path)
-    y_test = np.load(y_test_path)
+    x_test = np.load(data_paths['test_images'])
+    y_test = np.load(data_paths['test_labels'])
 
     print('Test images/Fmaps and labels loaded!\n')
+
+    ################## CNN Feature Extraction ################################################
+
+    #create an empty dictionary which will be populated with the hyperparameter combination (key) along with the peak RAM usage during training and prediction (value)
+    peak_mem_usage = {}
+    # mem_usage_training = {}
+    # mem_usage_prediction_val = {}
+    # mem_usage_prediction_test = {}
+
+    #create empty dictionaries which will be populated with the hyperparameter combination (key) along with the execution times for training and prediction (value)
+    execution_time = {}
+    # training_time = {}
+    # prediction_time_val = {}
+    # prediction_time_test = {}
+
+    if cnn_feature_extraction:
+
+        #Perform feature extraction
+        x_train, x_val, x_test, feature_extraction_memory_usage, feature_extraction_time = perform_feature_extraction(
+            x_train = x_train,
+            y_train = y_train,
+            x_val = x_val,
+            y_val = y_val,
+            x_test = x_test,
+            y_test = y_test,
+            cnn_backbone_name = feature_extraction_settings['cnn_backbone_name'],
+            candidate_layer_name = feature_extraction_settings['candidate_layer_name'],
+            load_fine_tuned_model = feature_extraction_settings['load_fine_tuned_model'],
+            fine_tuned_weights_path = feature_extraction_settings['fine_tuned_weights_path']
+            )
+
+        #add measurement results from feature extraction to relevant dictionaries
+        peak_mem_usage['feature_extraction'] = feature_extraction_memory_usage
+        execution_time['feature_extraction'] = feature_extraction_time
 
     ################## Performing gcForestCS hyperparameter gridsearch #######################
 
     print('Performing hyperparameter gridsearch...\n')
 
     #produce a list of all of the different hyperparameter combinations
-    hyperparameter_comb = [_ for _ in product(combs_mgs, combs_pooling_mgs, combs_ca)]
+    hyperparameter_comb = [_ for _ in product(hyp_settings['combs_mgs'], hyp_settings['combs_pooling_mgs'], hyp_settings['combs_ca'])]
 
     # Reshape the training and validation inputs to format needed for multi-grained scanning (n_images, n_channels, width, height)
     x_train = x_train.reshape(x_train.shape[0], x_train.shape[3], x_train.shape[1], x_train.shape[2])
@@ -53,22 +89,26 @@ def gcForestCS_model_config(x_train_path, y_train_path, x_val_path, y_val_path, 
     x_test = x_test.reshape(x_test.shape[0], x_test.shape[3], x_test.shape[1], x_test.shape[2])
 
     #create an empty dictionary which will be populated with the hyperparameter combination (key) along with the confusion matrix array (value)
-    conf_mats_val = {}
-    weighted_f1_scores_val = {}
-    oa_val = {}
-    conf_mats_test = {}
-    weighted_f1_scores_test = {}
-    oa_test = {}
+    conf_mats = {}
+    weighted_f1_scores = {}
+    overall_acc = {}
+    
+    # conf_mats_val = {}
+    # weighted_f1_scores_val = {}
+    # oa_val = {}
+    # conf_mats_test = {}
+    # weighted_f1_scores_test = {}
+    # oa_test = {}
 
-    #create an empty dictionary which will be populated with the hyperparameter combination (key) along with the peak RAM usage during training and prediction (value)
-    mem_usage_training = {}
-    mem_usage_prediction_val = {}
-    mem_usage_prediction_test = {}
+    # #create an empty dictionary which will be populated with the hyperparameter combination (key) along with the peak RAM usage during training and prediction (value)
+    # mem_usage_training = {}
+    # mem_usage_prediction_val = {}
+    # mem_usage_prediction_test = {}
 
-    #create empty dictionaries which will be populated with the hyperparameter combination (key) along with the execution times for training and prediction (value)
-    training_time = {}
-    prediction_time_val = {}
-    prediction_time_test = {}
+    # #create empty dictionaries which will be populated with the hyperparameter combination (key) along with the execution times for training and prediction (value)
+    # training_time = {}
+    # prediction_time_val = {}
+    # prediction_time_test = {}
 
     #Finally, create a dictionary to measure overall execution time during the gridsearch
     hyp_gridsearch_time = {}
@@ -87,10 +127,10 @@ def gcForestCS_model_config(x_train_path, y_train_path, x_val_path, y_val_path, 
 
         #get model configuration
         config = build_gcforestCS(n_estimators_mgs = n_estimators_mgs,
-                                    tree_diversity_mgs = tree_diversity_mgs,
-                                    pooling_mgs = pooling_mgs,
-                                    n_estimators_ca = n_estimators_ca,
-                                    tree_diversity_ca = tree_diversity_ca)
+                                  tree_diversity_mgs = tree_diversity_mgs,
+                                  pooling_mgs = pooling_mgs,
+                                  n_estimators_ca = n_estimators_ca,
+                                  tree_diversity_ca = tree_diversity_ca)
 
         #create a model instance using model configuration
         cnn_gc = GCForestCS(config)
@@ -113,8 +153,8 @@ def gcForestCS_model_config(x_train_path, y_train_path, x_val_path, y_val_path, 
         #memory_usage_training = tracemalloc.get_traced_memory()
 
         #assign these values to respective dictionaries
-        mem_usage_training[str(comb)] = first_peak / 1000000 #convert from bytes to megabytes
-        training_time[str(comb)] = training_exec_time #in seconds
+        peak_mem_usage['training', str(comb)] = first_peak / 1000000 #convert from bytes to megabytes
+        execution_time['training', str(comb)] = training_exec_time #in seconds
 
         ##repeat the above for predictions
         start_time_predictions_val = time.process_time()
@@ -131,18 +171,18 @@ def gcForestCS_model_config(x_train_path, y_train_path, x_val_path, y_val_path, 
         #memory_usage_prediction = tracemalloc.get_traced_memory()
 
         #assign these values to respective dictionaries
-        mem_usage_prediction_val[str(comb)] = second_peak / 1000000 #convert from bytes to megabytes
-        prediction_time_val[str(comb)] = prediction_exec_time_val #in seconds
+        peak_mem_usage['val_predictions', str(comb)] = second_peak / 1000000 #convert from bytes to megabytes
+        execution_time['val_predictions', str(comb)] = prediction_exec_time_val #in seconds
 
         #produce confusion matrix
         cf_matrix_val = confusion_matrix(y_val, y_val_pred)
-        conf_mats_val[str(comb)] = cf_matrix_val
+        conf_mats['val', str(comb)] = cf_matrix_val
 
         #produce f1-score (this was added in after your model run in case you are wondering why dictionaries are empty)
-        weighted_f1_scores_val[str(comb)] = round(f1_score(y_val, y_val_pred, average='weighted'), 3)
+        weighted_f1_scores['val', str(comb)] = round(f1_score(y_val, y_val_pred, average='weighted'), 3)
 
         #produce overall accuracy (this was added in after your model run in case you are wondering why there isn't a dictionary for it)
-        oa_val[str(comb)] = round(accuracy_score(y_val, y_val_pred), 3)
+        overall_acc['val', str(comb)] = round(accuracy_score(y_val, y_val_pred), 3)
 
         ##Repeat the above for test set
         start_time_predictions_test = time.process_time()
@@ -159,18 +199,18 @@ def gcForestCS_model_config(x_train_path, y_train_path, x_val_path, y_val_path, 
         #memory_usage_prediction = tracemalloc.get_traced_memory()
 
         #assign these values to respective dictionaries
-        mem_usage_prediction_test[str(comb)] = third_peak / 1000000 #convert from bytes to megabytes
-        prediction_time_test[str(comb)] = prediction_exec_time_test #in seconds
+        peak_mem_usage['test_predictions', str(comb)] = third_peak / 1000000 #convert from bytes to megabytes
+        execution_time['test_predictions', str(comb)] = prediction_exec_time_test #in seconds
 
         #produce confusion matrix
         cf_matrix_test = confusion_matrix(y_test, y_test_pred)
-        conf_mats_test[str(comb)] = cf_matrix_test
+        conf_mats['test', str(comb)] = cf_matrix_test
 
         #produce f1-score (this was added in after your model run in case you are wondering why dictionaries are empty)
-        weighted_f1_scores_test[str(comb)] = round(f1_score(y_test, y_test_pred, average='weighted'), 3)
+        weighted_f1_scores['test', str(comb)] = round(f1_score(y_test, y_test_pred, average='weighted'), 3)
 
         #produce overall accuracy (this was added in after your model run in case you are wondering why there isn't a dictionary for it)
-        oa_test[str(comb)] = round(accuracy_score(y_test, y_test_pred), 3)
+        overall_acc['test', str(comb)] = round(accuracy_score(y_test, y_test_pred), 3)
 
     #end measurement of running time for gridsearch
     end_time_hyp_gridsearch = time.process_time()
@@ -182,26 +222,26 @@ def gcForestCS_model_config(x_train_path, y_train_path, x_val_path, y_val_path, 
     ################# Saving results from gridsearch ############################
 
     #confusion matrices
-    np.save('/home/crwlia001/model_combination_results/combination_{}/model_comb_{}_conf_mats_val.npy'.format(model_combination_num, model_combination_num), conf_mats_val)
-    np.save('/home/crwlia001/model_combination_results/combination_{}/model_comb_{}_conf_mats_test.npy'.format(model_combination_num, model_combination_num), conf_mats_test)
+    np.save('/home/crwlia001/model_combination_results/combination_{}/model_comb_{}_conf_mats_val.npy'.format(model_combination_num, model_combination_num), conf_mats)
+    #np.save('/home/crwlia001/model_combination_results/combination_{}/model_comb_{}_conf_mats_test.npy'.format(model_combination_num, model_combination_num), conf_mats_test)
 
     #weighted f1-scores
-    np.save('/home/crwlia001/model_combination_results/combination_{}/model_comb_{}_f1_val.npy'.format(model_combination_num, model_combination_num), weighted_f1_scores_val)
-    np.save('/home/crwlia001/model_combination_results/combination_{}/model_comb_{}_f1_test.npy'.format(model_combination_num, model_combination_num), weighted_f1_scores_test)
+    np.save('/home/crwlia001/model_combination_results/combination_{}/model_comb_{}_weighted_f1_scores.npy'.format(model_combination_num, model_combination_num), weighted_f1_scores)
+    #np.save('/home/crwlia001/model_combination_results/combination_{}/model_comb_{}_f1_test.npy'.format(model_combination_num, model_combination_num), weighted_f1_scores_test)
 
     #overall accuracy
-    np.save('/home/crwlia001/model_combination_results/combination_{}/model_comb_{}_oa_val.npy'.format(model_combination_num, model_combination_num), oa_val)
-    np.save('/home/crwlia001/model_combination_results/combination_{}/model_comb_{}_oa_test.npy'.format(model_combination_num, model_combination_num), oa_test)
+    np.save('/home/crwlia001/model_combination_results/combination_{}/model_comb_{}_overall_acc.npy'.format(model_combination_num, model_combination_num), overall_acc)
+    #np.save('/home/crwlia001/model_combination_results/combination_{}/model_comb_{}_oa_test.npy'.format(model_combination_num, model_combination_num), oa_test)
 
     #peak memory usage
-    np.save('/home/crwlia001/model_combination_results/combination_{}/model_comb_{}_mem_usage_training.npy'.format(model_combination_num, model_combination_num), mem_usage_training)
-    np.save('/home/crwlia001/model_combination_results/combination_{}/model_comb_{}_mem_usage_prediction_val.npy'.format(model_combination_num, model_combination_num), mem_usage_prediction_val)
-    np.save('/home/crwlia001/model_combination_results/combination_{}/model_comb_{}_mem_usage_prediction_test.npy'.format(model_combination_num, model_combination_num), mem_usage_prediction_test)
+    np.save('/home/crwlia001/model_combination_results/combination_{}/model_comb_{}_peak_mem_usage.npy'.format(model_combination_num, model_combination_num), peak_mem_usage)
+    #np.save('/home/crwlia001/model_combination_results/combination_{}/model_comb_{}_mem_usage_prediction_val.npy'.format(model_combination_num, model_combination_num), mem_usage_prediction_val)
+    #np.save('/home/crwlia001/model_combination_results/combination_{}/model_comb_{}_mem_usage_prediction_test.npy'.format(model_combination_num, model_combination_num), mem_usage_prediction_test)
 
     #training and prediction times
-    np.save('/home/crwlia001/model_combination_results/combination_{}/model_comb_{}_training_time.npy'.format(model_combination_num, model_combination_num), training_time)
-    np.save('/home/crwlia001/model_combination_results/combination_{}/model_comb_{}_prediction_time_val.npy'.format(model_combination_num, model_combination_num), prediction_time_val)
-    np.save('/home/crwlia001/model_combination_results/combination_{}/model_comb_{}_prediction_time_test.npy'.format(model_combination_num, model_combination_num), prediction_time_test)
+    np.save('/home/crwlia001/model_combination_results/combination_{}/model_comb_{}_execution_times.npy'.format(model_combination_num, model_combination_num), execution_time)
+    #np.save('/home/crwlia001/model_combination_results/combination_{}/model_comb_{}_prediction_time_val.npy'.format(model_combination_num, model_combination_num), prediction_time_val)
+    #np.save('/home/crwlia001/model_combination_results/combination_{}/model_comb_{}_prediction_time_test.npy'.format(model_combination_num, model_combination_num), prediction_time_test)
 
     #hyperparameter gridsearch execution time
     np.save('/home/crwlia001/model_combination_results/combination_{}/model_comb_{}_hyp_gridsearch_time.npy'.format(model_combination_num, model_combination_num), hyp_gridsearch_time)

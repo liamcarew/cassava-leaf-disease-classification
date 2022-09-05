@@ -19,39 +19,47 @@ from sklearn import utils
 from cassava_leaf_disease_classification.modelling.src.multi_grained_scanning.utils.build_gcForestCS import build_gcforestCS
 #from cassava_leaf_disease_classification.modelling.src.multi_grained_scanning.utils.reshape_inputs import reshape_inputs
 from cassava_leaf_disease_classification.modelling.src.multi_grained_scanning.utils.gcForestCS.lib.gcforest.gcforestCS import GCForestCS
-from model_comb_config import gcForestCS_model_config
+from model_comb_config import gcForestCS_gridsearch
 from itertools import product
 
 ##memory and execution time measurement
 import time
 import tracemalloc
 
-#specify training set feature map and associated label paths
-X_TRAIN_PATH = '/scratch/crwlia001/data/densenet201_fmaps/original/candidate_layer_2/densenet201_cl2_og_x_train.npy'
-Y_TRAIN_PATH = '/scratch/crwlia001/data/y_train.npy'
+#### paths to images and labels for each split ###
+DATA_PATHS = {}
 
-#specify validation set feature map and associated label paths
-X_VAL_PATH = '/scratch/crwlia001/data/densenet201_fmaps/original/candidate_layer_2/densenet201_cl2_og_x_val.npy'
-Y_VAL_PATH = '/scratch/crwlia001/data/y_val.npy'
+#training set
+DATA_PATHS['training_images'] = '/scratch/crwlia001/data/training_set/original/x_train.npy'
+DATA_PATHS['training_labels'] = '/scratch/crwlia001/data/y_train.npy'
 
-#specify test set feature map and associated label paths
-X_TEST_PATH = '/scratch/crwlia001/data/densenet201_fmaps/original/candidate_layer_2/densenet201_cl2_og_x_test.npy'
-Y_TEST_PATH = '/scratch/crwlia001/data/y_test.npy'
+#validation set
+DATA_PATHS['validation_images'] = '/scratch/crwlia001/data/x_val.npy'
+DATA_PATHS['validation_labels'] = '/scratch/crwlia001/data/y_val.npy'
 
-#specify the different hyperparameters you wish to tune along with the associated values
-COMBS_MGS = [(1, False), (2, True), (4, True)]
-COMBS_CA = [(4, False), (8, True), (16, True)]
-COMBS_POOLING_MGS = [False]
+#test set
+DATA_PATHS['test_images'] = '/scratch/crwlia001/data/x_test.npy'
+DATA_PATHS['test_labels'] = '/scratch/crwlia001/data/y_test.npy'
 
-#Run hyperparameter gridsearch
-gcForestCS_model_config(
-    x_train_path = X_TRAIN_PATH,
-    y_train_path = Y_TRAIN_PATH,
-    x_val_path = X_VAL_PATH,
-    y_val_path = Y_VAL_PATH,
-    x_test_path = X_TEST_PATH,
-    y_test_path = Y_TEST_PATH,
-    combs_mgs = COMBS_MGS,
-    combs_pooling_mgs = COMBS_POOLING_MGS,
-    combs_ca = COMBS_CA,
-    model_combination_num = 4)
+### hyperparameter settings in gridsearch ###
+HYP_SETTINGS = {}
+HYP_SETTINGS['combs_mgs'] = [(1, False), (2, True), (2, False), (4, True)]
+HYP_SETTINGS['combs_pooling_mgs'] = [False]
+HYP_SETTINGS['combs_ca'] = [(4, False), (8, True), (8, False), (16, True)]
+
+### feature extraction settings ###
+FE_SETTINGS = {}
+FE_SETTINGS['cnn_backbone_name'] = 'DenseNet201'
+FE_SETTINGS['candidate_layer_name'] = 'pool4_conv' #(14x14x896)
+FE_SETTINGS['load_fine_tuned_model'] = False
+FE_SETTINGS['fine_tuned_weights_path'] = None
+
+################### Run Hyperparameter Gridsearch ####################################
+
+gcForestCS_gridsearch(
+    data_paths = DATA_PATHS,
+    hyp_settings = HYP_SETTINGS,
+    model_combination_num = 4,
+    cnn_feature_extraction=True,
+    feature_extraction_settings=FE_SETTINGS
+    )

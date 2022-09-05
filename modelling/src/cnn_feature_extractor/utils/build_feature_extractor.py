@@ -16,7 +16,7 @@ def build_feature_extractor(input_image_shape, cnn_backbone_name, output_layer_n
     inputs = Input(shape=input_image_shape)
 
     #check that 'cnn_backbone_name' is one of the two CNN backbones you are using and that only one name is given
-    assert cnn_backbone_name in ['DenseNet201', 'MobileNetV2'], 'CNN backbone should either be \'DenseNet201\', \'MobileNetV2\''
+    assert cnn_backbone_name in ['DenseNet201', 'MobileNetV2'], 'CNN backbone should either be \'DenseNet201\' or \'MobileNetV2\''
 
     #import the pre-trained CNN backbone specified
     if cnn_backbone_name == 'DenseNet201':

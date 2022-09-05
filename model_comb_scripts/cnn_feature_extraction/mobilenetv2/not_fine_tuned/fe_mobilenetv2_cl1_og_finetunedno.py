@@ -17,8 +17,8 @@ import tracemalloc
 
 #Perform feature extraction
 perform_feature_extraction(
-    training_set_type = 'balanced',
+    training_set_type = 'original',
     cnn_backbone_name = 'MobileNetV2',
-    candidate_layer_name = 'pool3_conv', #(28x28x256)
+    candidate_layer_name = 'block_6_expand', #(28x28x192)
     candidate_layer_num = 1,
-    model_combination = 3)
+    model_combination = 7)
