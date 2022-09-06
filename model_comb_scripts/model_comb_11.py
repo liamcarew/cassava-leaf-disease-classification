@@ -6,49 +6,53 @@
 # Classifier: FCN
 
 #import necessary libraries
-import argparse
-import numpy as np
-from sklearn.metrics import accuracy_score, confusion_matrix, f1_score
-from sklearn import utils
-from cassava_leaf_disease_classification.modelling.src.fine_tuning.utils.build_deep_learning_model import build_deep_learning_model
 from tensorflow.keras.applications.densenet import DenseNet201
+from tensorflow.keras.applications.mobilenet_v2 import MobileNetV2
 from tensorflow.keras import models
-from tensorflow.keras.layers import Dense, Input, Dropout, GlobalAveragePooling2D, GlobalMaxPooling2D
+from tensorflow.keras.layers import Dense, Dropout, GlobalMaxPooling2D
 from tensorflow.keras.metrics import SparseCategoricalAccuracy
 from tensorflow.keras.optimizers import Adam, SGD
 from tensorflow.keras.losses import categorical_crossentropy
 from tensorflow.data import Dataset, AUTOTUNE
 from tensorflow.keras.callbacks import EarlyStopping
 from tensorflow.random import set_seed
+from tensorflow.keras.backend import clear_session
+from tensorflow import config
+from sklearn.metrics import confusion_matrix, accuracy_score, f1_score
 from itertools import product
 import time
-import tracemalloc
+from cassava_leaf_disease_classification.modelling.src.fine_tuning.utils.build_deep_learning_model import build_deep_learning_model
+from cassava_leaf_disease_classification.modelling.src.fine_tuning.utils.get_peak_gpu_mem_usage import get_peak_gpu_mem_usage
+from cassava_leaf_disease_classification.modelling.src.fine_tuning.utils.deep_learning_data_preparation import deep_learning_data_preparation
+from cassava_leaf_disease_classification.modelling.src.fine_tuning.utils.deep_learning_gridsearch import deep_learning_gridsearch
 
-###################### Importing and Preparing Data ###################################
+############## configure GPU to allow for memory usage measurement #####################
 
-print('Loading training images and associated labels...\n')
+#get GPU currently being used by you
+gpu_devices = config.list_physical_devices('GPU')
 
-x_train = np.load('/scratch/crwlia001/x_train.npy')
-y_train = np.load('/scratch/crwlia001/y_train.npy')
+#set this device to allow for memory growth
+for gpu in gpu_devices:
+  config.experimental.set_memory_growth(gpu, True)
 
-print('training images and associated labels loaded!\n')
+############## Preparing for data preparation function call ############################
 
-print('Loading validation images and associated labels...\n')
+#### paths to images and labels for each split ###
+DATA_PATHS = {}
 
-x_val = np.load('/scratch/crwlia001/x_val.npy')
-y_val = np.load('/scratch/crwlia001/y_val.npy')
+#training set
+DATA_PATHS['training_images'] = '/scratch/crwlia001/data/training_set/original/x_train.npy'
+DATA_PATHS['training_labels'] = '/scratch/crwlia001/data/y_train.npy'
 
-print('validation images and associated labels loaded!\n')
+#validation set
+DATA_PATHS['validation_images'] = '/scratch/crwlia001/data/x_val.npy'
+DATA_PATHS['validation_labels'] = '/scratch/crwlia001/data/y_val.npy'
 
-BATCH_SIZE = 32
+############ Perform data preparation ########################
 
-#first, let's convert 'x_train' and 'y_train' into tensorflow dataset object, applying functions that will optimise training
-training_data = Dataset.from_tensor_slices((x_train, y_train)).shuffle(10).batch(batch_size = BATCH_SIZE).cache().prefetch(buffer_size=AUTOTUNE)
+training_data, validation_data, x_val, y_val = deep_learning_data_preparation(data_paths = DATA_PATHS, batch_size = 32)
 
-#do the same for the validation set
-validation_data = Dataset.from_tensor_slices((x_val, y_val)).batch(batch_size = BATCH_SIZE)
-
-################## Hyperparameter gridsearch #######################
+############ Prepare gridsearch #######################
 
 #create a parameter grid of the different values to use during gridsearch
 dropout_rate = [0.25, 0.5, 0.75]
@@ -58,92 +62,19 @@ learning_rate = [0.0001, 0.001, 0.01]
 #produce a list of all of the different hyperparameter combinations
 hyperparameter_comb = [_ for _ in product(dropout_rate, optimiser, learning_rate)]
 
-#let's define dictionaries that will be needed
+############ Perform deep learning gridsearch ################
 
-#confusion matrices
-conf_mats_val = {}
-f1_val = {}
-overall_acc_val = {}
+deep_learning_gridsearch(
+  hyperparameter_combinations = hyperparameter_comb,
+  model_combination_num = 11,
+  backbone = 'DenseNet201',
+  training_data = training_data,
+  validation_data = validation_data,
+  x_val = x_val,
+  y_val = y_val,
+  num_epochs = 250,
+  random_state = 1,
+  start_fine_tune_layer_name = 'pool2_conv',
+  es_patience = 20,
+  gpu_devices = gpu_devices)
 
-#memory usage
-mem_usage_training = {}
-mem_usage_prediction_val = {}
-
-#execution time
-training_time = {}
-prediction_time_val = {}
-
-for comb in hyperparameter_comb:
-
-  #save each of the hyperparameters in this combination as separate variables
-  dropout_rate, optimiser, learning_rate = comb
-
-  #create deep learning model instance with these hyperparameters
-  model = build_deep_learning_model(backbone = 'densenet201',
-                                    dropout_rate = dropout_rate,
-                                    optimiser = optimiser,
-                                    learning_rate = learning_rate,
-                                    layer_num = 52)
-
-  #add early stopping as callback to model to prevent overfitting
-  early_stopping = EarlyStopping(monitor='val_loss',
-                                 patience=15,
-                                 verbose=1,
-                                 restore_best_weights=True)
-
-  #specify number of epochs and batch size
-  EPOCHS = 250
-  BATCH_SIZE = 32        
-
-  #initialise variables to monitor RAM usage and execution time during training
-  tracemalloc.start()
-  start_time_training = time.process_time()
-
-  #fit model to training data
-  set_seed(1) #for reproducibility
-  model.fit(training_data,
-            batch_size = BATCH_SIZE,
-            epochs = EPOCHS,
-            validation_data = validation_data,
-            callbacks = [early_stopping],
-            shuffle=True
-            )
-
-  #terminate monitoring of RAM usage and execution time
-  end_time_training = time.process_time()
-  first_size, first_peak = tracemalloc.get_traced_memory()
-  tracemalloc.stop()
-
-  #determine training time
-  training_exec_time = end_time_training - start_time_training
-
-  #assign peak RAM usage and execution time to respective dictionaries
-  mem_usage_training[str(comb)] = first_peak / 1000000 #convert from bytes to megabytes
-  training_time[str(comb)] = training_exec_time #in seconds
-
-  ##perform predictions on validation set
-  start_time_predictions_val = time.process_time()
-  tracemalloc.start()
-
-  y_val_pred = model.predict_classes(x_val)
-
-  end_time_predictions_val = time.process_time()
-  second_size, second_peak = tracemalloc.get_traced_memory()
-  tracemalloc.stop()
-
-  prediction_exec_time_val = end_time_predictions_val - start_time_predictions_val
-
-  #assign peak memory usage and prediction times to respective dictionaries
-  mem_usage_prediction_val[str(comb)] = second_peak / 1000000 #convert from bytes to megabytes
-  prediction_time_val[str(comb)] = prediction_exec_time_val #in seconds
-
-  #produce confusion matrix
-  cf_matrix_val = confusion_matrix(y_val, y_val_pred)
-  conf_mats_val[str(comb)] = cf_matrix_val
-
-  #calculate weighted f1-score and overall accuracy and add these to their respective dictionaries
-  f1 = f1_score(y_val, y_val_pred, average='weighted')
-  oa = accuracy_score(y_val, y_val_pred)
-
-  f1_val[str(comb)] = round(f1, 2)
-  overall_acc_val[str(comb)] = round(oa, 2)
