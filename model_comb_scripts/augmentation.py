@@ -81,7 +81,7 @@ def upsample_minority_class(img_array, label, no_aug_combs, balanced_sample_size
   #IMG_SIZE = (224,224,3)
 
   #create an empty array to populate with augmented images
-  aug_img_array = np.empty([len(img_array)*no_aug_combs, 224, 224, 3], dtype='uint8')
+  aug_img_array = np.empty([len(img_array)*no_aug_combs, 224, 224, 3], dtype='float32')
 
   #also create an associated label array using the class label
   #aug_label_array = np.empty(len(img_array)*no_aug_combs, dtype='float32')

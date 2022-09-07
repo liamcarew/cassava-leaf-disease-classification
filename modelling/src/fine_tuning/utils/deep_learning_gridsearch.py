@@ -123,8 +123,8 @@ def deep_learning_gridsearch(hyperparameter_combinations, model_combination_num,
     prediction_exec_time_val = round(end_time_predictions_val - start_time_predictions_val, 3) #in seconds
 
     #assign peak memory usage and prediction times to respective dictionaries
-    current_comb_results['val_pred_peak_mem_usage'] = peak_ram_during_val_predictions
-    current_comb_results['val_pred_runtime'] = prediction_exec_time_val
+    current_comb_results['val_preds_peak_mem_usage'] = peak_ram_during_val_predictions
+    current_comb_results['val_preds_runtime'] = prediction_exec_time_val
     #mem_usage_prediction_val[str(comb)] = peak_ram_during_val_predictions
     #prediction_time_val[str(comb)] = prediction_exec_time_val
 
@@ -136,8 +136,8 @@ def deep_learning_gridsearch(hyperparameter_combinations, model_combination_num,
     f1 = f1_score(y_val, y_val_pred, average='weighted')
     oa = accuracy_score(y_val, y_val_pred)
 
-    current_comb_results['val_weighted_f1_score'] = round(f1, 4)
-    current_comb_results['val_overall_acc'] = round(oa, 4)
+    current_comb_results['weighted_f1_val'] = round(f1, 4)
+    current_comb_results['overall_acc_val'] = round(oa, 4)
     #weighted_f1_scores_val[str(comb)] = round(f1, 2)
     #oa_val[str(comb)] = round(oa, 2)
 
