@@ -56,6 +56,8 @@ def gcForestCS_gridsearch(data_paths, hyp_settings, model_combination_num, cnn_f
     # prediction_time_val = {}
     # prediction_time_test = {}
 
+    hyp_comb_results = {}
+
     if cnn_feature_extraction:
 
         #Perform feature extraction
@@ -69,12 +71,13 @@ def gcForestCS_gridsearch(data_paths, hyp_settings, model_combination_num, cnn_f
             cnn_backbone_name = feature_extraction_settings['cnn_backbone_name'],
             candidate_layer_name = feature_extraction_settings['candidate_layer_name'],
             load_fine_tuned_model = feature_extraction_settings['load_fine_tuned_model'],
+            best_dropout_rate = feature_extraction_settings['best_dropout_rate'],
             fine_tuned_weights_path = feature_extraction_settings['fine_tuned_weights_path']
             )
 
         #add measurement results from feature extraction to relevant dictionaries
-        peak_mem_usage['feature_extraction'] = feature_extraction_memory_usage
-        execution_time['feature_extraction'] = feature_extraction_time
+        hyp_comb_results['feature_extraction_peak_mem_usage'] = feature_extraction_memory_usage
+        hyp_comb_results['feature_extraction_execution_time'] = feature_extraction_time
 
     ################## Performing gcForestCS hyperparameter gridsearch #######################
 
@@ -112,7 +115,7 @@ def gcForestCS_gridsearch(data_paths, hyp_settings, model_combination_num, cnn_f
 
     #Finally, create a dictionary to measure overall execution time during the gridsearch
     #hyp_gridsearch_time = {}
-    hyp_comb_results = {}
+    #hyp_comb_results = {}
 
     #start measurement of hyperparameter gridsearch execution time
     start_time_hyp_gridsearch = time.process_time()

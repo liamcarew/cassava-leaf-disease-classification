@@ -52,6 +52,7 @@ FE_SETTINGS = {}
 FE_SETTINGS['cnn_backbone_name'] = 'DenseNet201'
 FE_SETTINGS['candidate_layer_name'] = 'pool3_conv' #(28x28x256)
 FE_SETTINGS['load_fine_tuned_model'] = False
+FE_SETTINGS['best_dropout_rate'] = None
 FE_SETTINGS['fine_tuned_weights_path'] = None
 
 ################### Run Hyperparameter Gridsearch ####################################

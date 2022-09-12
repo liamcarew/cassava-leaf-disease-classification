@@ -1,7 +1,7 @@
 # curated training set?: no
 # augmentation?: yes
 # Feature Extraction?: yes
-# Fine-tuning?: no
+# Fine-tuning?: yes
 # CNN backbone: MobileNetV2 (Backbone 2)
 # Candidate layer 2 ('block_13_expand' #(14x14x576))
 # Classifier: gcForestCS
@@ -26,18 +26,20 @@ from itertools import product
 import time
 import tracemalloc
 
+############## Preparing dictionaries before function call ############################
+
 #### paths to images and labels for each split ###
 DATA_PATHS = {}
 
-#specify training set feature map and associated label paths
+#training set
 DATA_PATHS['training_images'] = '/scratch/crwlia001/data/training_set/balanced/balanced_x_train.npy'
 DATA_PATHS['training_labels'] = '/scratch/crwlia001/data/training_set/balanced/balanced_y_train.npy'
 
-#specify validation set feature map and associated label paths
+#validation set
 DATA_PATHS['validation_images'] = '/scratch/crwlia001/data/x_val.npy'
 DATA_PATHS['validation_labels'] = '/scratch/crwlia001/data/y_val.npy'
 
-#specify test set feature map and associated label paths
+#test set
 DATA_PATHS['test_images'] = '/scratch/crwlia001/data/x_test.npy'
 DATA_PATHS['test_labels'] = '/scratch/crwlia001/data/y_test.npy'
 
@@ -51,16 +53,16 @@ HYP_SETTINGS['combs_ca'] = [(4, False), (8, True), (8, False), (16, True)]
 FE_SETTINGS = {}
 FE_SETTINGS['cnn_backbone_name'] = 'MobileNetV2'
 FE_SETTINGS['candidate_layer_name'] = 'block_13_expand' #(14x14x576)
-FE_SETTINGS['load_fine_tuned_model'] = False
-FE_SETTINGS['best_dropout_rate'] = None
-FE_SETTINGS['fine_tuned_weights_path'] = None
+FE_SETTINGS['load_fine_tuned_model'] = True
+FE_SETTINGS['best_dropout_rate'] = 0.75
+FE_SETTINGS['fine_tuned_weights_path'] = '/scratch/crwlia001/fine_tuned_model_weights/MobileNetV2/model_comb_14_0.25_adam_0.0001.h5' 
 
 ################### Run Hyperparameter Gridsearch ####################################
 
 gcForestCS_gridsearch(
     data_paths = DATA_PATHS,
     hyp_settings = HYP_SETTINGS,
-    model_combination_num = 10,
+    model_combination_num = 22,
     cnn_feature_extraction=True,
     feature_extraction_settings=FE_SETTINGS
     )

@@ -54,6 +54,7 @@ FE_SETTINGS = {}
 FE_SETTINGS['cnn_backbone_name'] = 'MobileNetV2'
 FE_SETTINGS['candidate_layer_name'] = 'block_13_expand' #(14x14x576)
 FE_SETTINGS['load_fine_tuned_model'] = False
+FE_SETTINGS['best_dropout_rate'] = None
 FE_SETTINGS['fine_tuned_weights_path'] = None
 
 ################### Run Hyperparameter Gridsearch ####################################

@@ -14,7 +14,7 @@ from cassava_leaf_disease_classification.modelling.src.cnn_feature_extractor.uti
 import time
 import tracemalloc
 
-def perform_feature_extraction(x_train, y_train, x_val, y_val, x_test, y_test, cnn_backbone_name, candidate_layer_name, load_fine_tuned_model=False, fine_tuned_weights_path=None):
+def perform_feature_extraction(x_train, y_train, x_val, y_val, x_test, y_test, cnn_backbone_name, candidate_layer_name, load_fine_tuned_model=False, best_dropout_rate=None, fine_tuned_weights_path=None):
 
     # #to allow for GPU RAM measurement, need to configure GPU
     # if use_gpu:
@@ -75,7 +75,7 @@ def perform_feature_extraction(x_train, y_train, x_val, y_val, x_test, y_test, c
     print('Building CNN feature extractor...\n')
 
     #Build pre-trained CNN feature extractor using model run specifications
-    cnn_feature_extractor = build_feature_extractor(input_image_shape = (224, 224, 3), cnn_backbone_name = cnn_backbone_name, output_layer_name = candidate_layer_name, load_fine_tuned_model=load_fine_tuned_model, fine_tuned_weights_path=fine_tuned_weights_path)
+    cnn_feature_extractor = build_feature_extractor(input_image_shape = (224, 224, 3), cnn_backbone_name = cnn_backbone_name, output_layer_name = candidate_layer_name, load_fine_tuned_model=load_fine_tuned_model, best_dropout_rate=best_dropout_rate, fine_tuned_weights_path=fine_tuned_weights_path)
 
     print('Performing feature extraction...\n')
 

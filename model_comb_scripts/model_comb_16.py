@@ -1,9 +1,9 @@
 # curated training set?: no
 # augmentation?: no
-# Feature Extraction?: yes
-# Fine-tuning?: no
-# CNN backbone: DenseNet201 (Backbone 1)
-# Candidate layer 1 ('pool3_conv' (28x28x256))
+# Feature Extraction?: Yes
+# Fine-tuning?: Yes
+# CNN backbone: DenseNet (Backbone 1)
+# Candidate layer 2 ('pool4_conv' (14x14x896))
 # Classifier: gcForestCS
 
 #import necessary libraries
@@ -52,47 +52,17 @@ HYP_SETTINGS['combs_ca'] = [(4, False), (8, True), (8, False), (16, True)]
 ### feature extraction settings ###
 FE_SETTINGS = {}
 FE_SETTINGS['cnn_backbone_name'] = 'DenseNet201'
-FE_SETTINGS['candidate_layer_name'] = 'pool3_conv' #(28x28x256)
-FE_SETTINGS['load_fine_tuned_model'] = False
-FE_SETTINGS['best_dropout_rate'] = None
-FE_SETTINGS['fine_tuned_weights_path'] = None
-
-# #specify training set feature map and associated label paths
-# X_TRAIN_PATH = '/scratch/crwlia001/data/densenet201_fmaps/original/candidate_layer_1/densenet201_cl1_og_x_train.npy'
-# Y_TRAIN_PATH = '/scratch/crwlia001/data/y_train.npy'
-
-# #specify validation set feature map and associated label paths
-# X_VAL_PATH = '/scratch/crwlia001/data/densenet201_fmaps/original/candidate_layer_1/densenet201_cl1_og_x_val.npy'
-# Y_VAL_PATH = '/scratch/crwlia001/data/y_val.npy'
-
-# #specify test set feature map and associated label paths
-# X_TEST_PATH = '/scratch/crwlia001/data/densenet201_fmaps/original/candidate_layer_1/densenet201_cl1_og_x_test.npy'
-# Y_TEST_PATH = '/scratch/crwlia001/data/y_test.npy'
-
-# #specify the different hyperparameters you wish to tune along with the associated values
-# COMBS_MGS = [(1, False), (2, True), (4, True)]
-# COMBS_CA = [(4, False), (8, True), (16, True)]
-# COMBS_POOLING_MGS = [False]
-
-#Run hyperparameter gridsearch
-# gcForestCS_model_config(
-#     x_train_path = X_TRAIN_PATH,
-#     y_train_path = Y_TRAIN_PATH,
-#     x_val_path = X_VAL_PATH,
-#     y_val_path = Y_VAL_PATH,
-#     x_test_path = X_TEST_PATH,
-#     y_test_path = Y_TEST_PATH,
-#     combs_mgs = COMBS_MGS,
-#     combs_pooling_mgs = COMBS_POOLING_MGS,
-#     combs_ca = COMBS_CA,
-#     model_combination_num = 3)
+FE_SETTINGS['candidate_layer_name'] = 'pool4_conv' #(14x14x896)
+FE_SETTINGS['load_fine_tuned_model'] = True
+FE_SETTINGS['best_dropout_rate'] = 0.5
+FE_SETTINGS['fine_tuned_weights_path'] = '/scratch/crwlia001/fine_tuned_model_weights/DenseNet201/model_comb_11_0.5_adam_0.001.h5'
 
 ################### Run Hyperparameter Gridsearch ####################################
 
 gcForestCS_gridsearch(
     data_paths = DATA_PATHS,
     hyp_settings = HYP_SETTINGS,
-    model_combination_num = 3,
+    model_combination_num = 16,
     cnn_feature_extraction=True,
     feature_extraction_settings=FE_SETTINGS
     )
