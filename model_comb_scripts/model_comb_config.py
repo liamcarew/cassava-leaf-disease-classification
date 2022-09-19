@@ -45,17 +45,18 @@ def gcForestCS_gridsearch(data_paths, hyp_settings, model_combination_num, cnn_f
     ################## CNN Feature Extraction ################################################
 
     #create an empty dictionary which will be populated with the hyperparameter combination (key) along with the peak RAM usage during training and prediction (value)
-    peak_mem_usage = {}
+    #peak_mem_usage = {}
     # mem_usage_training = {}
     # mem_usage_prediction_val = {}
     # mem_usage_prediction_test = {}
 
     #create empty dictionaries which will be populated with the hyperparameter combination (key) along with the execution times for training and prediction (value)
-    execution_time = {}
+    #execution_time = {}
     # training_time = {}
     # prediction_time_val = {}
     # prediction_time_test = {}
 
+    feature_extraction = {}
     hyp_comb_results = {}
 
     if cnn_feature_extraction:
@@ -76,8 +77,8 @@ def gcForestCS_gridsearch(data_paths, hyp_settings, model_combination_num, cnn_f
             )
 
         #add measurement results from feature extraction to relevant dictionaries
-        hyp_comb_results['feature_extraction_peak_mem_usage'] = feature_extraction_memory_usage
-        hyp_comb_results['feature_extraction_execution_time'] = feature_extraction_time
+        feature_extraction['peak_mem_usage'] = feature_extraction_memory_usage
+        feature_extraction['execution_time'] = feature_extraction_time
 
     ################## Performing gcForestCS hyperparameter gridsearch #######################
 
@@ -244,6 +245,9 @@ def gcForestCS_gridsearch(data_paths, hyp_settings, model_combination_num, cnn_f
     #hyp_gridsearch_time['model_comb_{}'.format(model_combination_num)] = hyp_gridsearch_exec_time
 
     ################# Saving results from gridsearch ############################
+
+    #feature extraction
+    np.save('/home/crwlia001/model_combination_results/combination_{}/model_comb_{}_feature_extraction.npy'.format(model_combination_num, model_combination_num), feature_extraction)
 
     #hyperparameter gridsearch results
     np.save('/home/crwlia001/model_combination_results/combination_{}/model_comb_{}_hyp_comb_results.npy'.format(model_combination_num, model_combination_num), hyp_comb_results)
