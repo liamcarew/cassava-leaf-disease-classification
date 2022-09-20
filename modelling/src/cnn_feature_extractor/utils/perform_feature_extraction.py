@@ -83,111 +83,111 @@ def perform_feature_extraction(x_train, y_train, x_val, y_val, x_test, y_test, c
 
     ##training set
 
-    # #initialise memory usage and execution time measurement variables
-    # tracemalloc.start()
-    # start_time_training = time.process_time()
+    #initialise memory usage and execution time measurement variables
+    tracemalloc.start()
+    start_time_training = time.process_time()
 
-    #initialise variables to monitor RAM usage and execution time during FE
-    peak_ram_before_fe_train = get_peak_gpu_mem_usage(gpu_devices)
-    start_time_fe_train = time.process_time()
+    # #initialise variables to monitor RAM usage and execution time during FE
+    # peak_ram_before_fe_train = get_peak_gpu_mem_usage(gpu_devices)
+    # start_time_fe_train = time.process_time()
 
     training_data = cnn_feature_extractor.predict(x = training_data, verbose = 1)
 
-    #terminate monitoring of RAM usage and execution time
-    peak_ram_after_fe_train = get_peak_gpu_mem_usage(gpu_devices)
-    end_time_fe_train = time.process_time()
-
-    #determine training time and RAM usage during training
-    fe_peak_ram_train = round((peak_ram_after_fe_train - peak_ram_before_fe_train) / 1000000, 3) #convert from bytes to megabytes
-    fe_exec_time_train = round(end_time_fe_train - start_time_fe_train, 3) #in seconds
-
     # #terminate monitoring of RAM usage and execution time
-    # end_time_training = time.process_time()
-    # first_size, first_peak = tracemalloc.get_traced_memory()
-    # tracemalloc.stop()
+    # peak_ram_after_fe_train = get_peak_gpu_mem_usage(gpu_devices)
+    # end_time_fe_train = time.process_time()
 
-    # #determine execution time
-    # training_exec_time = end_time_training - start_time_training
+    #terminate monitoring of RAM usage and execution time
+    end_time_training = time.process_time()
+    first_size, first_peak = tracemalloc.get_traced_memory()
+    tracemalloc.stop()
 
-    # #save memory usage and execution time to respective dictionaries
-    # feature_extraction_memory_usage['train'] = first_peak / 1000000 #convert from bytes to megabytes
-    # feature_extraction_time['train'] = training_exec_time #in seconds
+    # #determine training time and RAM usage during training
+    # fe_peak_ram_train = round(first_peak / 1000000, 3) #convert from bytes to megabytes
+    # fe_exec_time_train = round(end_time_training - start_time_training, 3) #in seconds
+
+    #determine execution time
+    training_exec_time = end_time_training - start_time_training
 
     #save memory usage and execution time to respective dictionaries
-    feature_extraction_memory_usage['train'] = fe_peak_ram_train #convert from bytes to megabytes
-    feature_extraction_time['train'] = fe_exec_time_train #in seconds
+    feature_extraction_memory_usage['train'] = first_peak / 1000000 #convert from bytes to megabytes
+    feature_extraction_time['train'] = training_exec_time #in seconds
+
+    # #save memory usage and execution time to respective dictionaries
+    # feature_extraction_memory_usage['train'] = fe_peak_ram_train #convert from bytes to megabytes
+    # feature_extraction_time['train'] = fe_exec_time_train #in seconds
 
     #clear session - resets RAM measurement
-    clear_session()
+    #clear_session()
 
     ##validation set
 
-    #initialise variables to monitor RAM usage and execution time during FE
-    peak_ram_before_fe_val = get_peak_gpu_mem_usage(gpu_devices)
-    start_time_fe_val = time.process_time()
-
-    validation_data = cnn_feature_extractor.predict(x = validation_data, verbose = 1)
-
-    #terminate monitoring of RAM usage and execution time
-    peak_ram_after_fe_val = get_peak_gpu_mem_usage(gpu_devices)
-    end_time_fe_val = time.process_time()
-
-    #determine execution time and RAM usage during validation
-    fe_peak_ram_val = round((peak_ram_after_fe_val - peak_ram_before_fe_val) / 1000000, 3) #convert from bytes to megabytes
-    fe_exec_time_val = round(end_time_fe_val - start_time_fe_val, 3) #in seconds
-
-    # #initialise memory usage and execution time measurement variables
-    # tracemalloc.start()
-    # start_time_val = time.process_time()
+    # #initialise variables to monitor RAM usage and execution time during FE
+    # peak_ram_before_fe_val = get_peak_gpu_mem_usage(gpu_devices)
+    # start_time_fe_val = time.process_time()
 
     # validation_data = cnn_feature_extractor.predict(x = validation_data, verbose = 1)
 
     # #terminate monitoring of RAM usage and execution time
-    # end_time_val = time.process_time()
-    # second_size, second_peak = tracemalloc.get_traced_memory()
-    # tracemalloc.stop()
+    # peak_ram_after_fe_val = get_peak_gpu_mem_usage(gpu_devices)
+    # end_time_fe_val = time.process_time()
 
-    # #determine execution time
-    # val_exec_time = end_time_val - start_time_val
+    # #determine execution time and RAM usage during validation
+    # fe_peak_ram_val = round((peak_ram_after_fe_val - peak_ram_before_fe_val) / 1000000, 3) #convert from bytes to megabytes
+    # fe_exec_time_val = round(end_time_fe_val - start_time_fe_val, 3) #in seconds
+
+    #initialise memory usage and execution time measurement variables
+    tracemalloc.start()
+    start_time_val = time.process_time()
+
+    validation_data = cnn_feature_extractor.predict(x = validation_data, verbose = 1)
+
+    #terminate monitoring of RAM usage and execution time
+    end_time_val = time.process_time()
+    second_size, second_peak = tracemalloc.get_traced_memory()
+    tracemalloc.stop()
+
+    #determine execution time
+    val_exec_time = end_time_val - start_time_val
 
     #save memory usage and execution time to respective dictionaries
-    feature_extraction_memory_usage['val'] = fe_peak_ram_val #convert from bytes to megabytes
-    feature_extraction_time['val'] = fe_exec_time_val #in seconds
+    feature_extraction_memory_usage['val'] = round(second_peak / 1000000, 3) #convert from bytes to megabytes
+    feature_extraction_time['val'] = val_exec_time #in seconds
 
     #clear session - resets RAM measurement
-    clear_session()
+    #clear_session()
 
     ##test set
 
-    #initialise variables to monitor RAM usage and execution time during FE
-    peak_ram_before_fe_test = get_peak_gpu_mem_usage(gpu_devices)
-    start_time_fe_test = time.process_time()
+    # #initialise variables to monitor RAM usage and execution time during FE
+    # peak_ram_before_fe_test = get_peak_gpu_mem_usage(gpu_devices)
+    # start_time_fe_test = time.process_time()
 
-    # #initialise memory usage and execution time measurement variables
-    # tracemalloc.start()
-    # start_time_test = time.process_time()
+    #initialise memory usage and execution time measurement variables
+    tracemalloc.start()
+    start_time_test = time.process_time()
 
     testing_data = cnn_feature_extractor.predict(x = testing_data, verbose = 1)
 
-    #terminate monitoring of RAM usage and execution time
-    peak_ram_after_fe_test = get_peak_gpu_mem_usage(gpu_devices)
-    end_time_fe_test = time.process_time()
-
     # #terminate monitoring of RAM usage and execution time
-    # end_time_test = time.process_time()
-    # third_size, third_peak = tracemalloc.get_traced_memory()
-    # tracemalloc.stop()
+    # peak_ram_after_fe_test = get_peak_gpu_mem_usage(gpu_devices)
+    # end_time_fe_test = time.process_time()
 
-    # #determine execution time
-    # test_exec_time = end_time_test - start_time_test
+    #terminate monitoring of RAM usage and execution time
+    end_time_test = time.process_time()
+    third_size, third_peak = tracemalloc.get_traced_memory()
+    tracemalloc.stop()
 
-    #determine execution time and RAM usage during testing
-    fe_peak_ram_test = round((peak_ram_after_fe_test - peak_ram_before_fe_test) / 1000000, 3) #convert from bytes to megabytes
-    fe_exec_time_test = round(end_time_fe_test - start_time_fe_test, 3) #in seconds
+    #determine execution time
+    test_exec_time = end_time_test - start_time_test
+
+    # #determine execution time and RAM usage during testing
+    # fe_peak_ram_test = round(third_peak / 1000000, 3) #convert from bytes to megabytes
+    # fe_exec_time_test = round(test_exec_time, 3) #in seconds
 
     #save memory usage and execution time to respective dictionaries
-    feature_extraction_memory_usage['test'] = fe_peak_ram_test #convert from bytes to megabytes
-    feature_extraction_time['test'] = fe_exec_time_test #in seconds
+    feature_extraction_memory_usage['test'] = round(third_peak / 1000000, 3) #convert from bytes to megabytes
+    feature_extraction_time['test'] = round(test_exec_time, 3) #in seconds
 
     #Convert all to np arrays
     training_data = np.array(training_data)

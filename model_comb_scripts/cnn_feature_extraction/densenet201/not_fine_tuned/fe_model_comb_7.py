@@ -12,18 +12,18 @@ from tensorflow.keras.backend import clear_session
 from tensorflow import config
 from cassava_leaf_disease_classification.modelling.src.cnn_feature_extractor.utils.build_feature_extractor import build_feature_extractor
 from cassava_leaf_disease_classification.modelling.src.cnn_feature_extractor.utils.perform_feature_extraction import perform_feature_extraction
-from cassava_leaf_disease_classification.modelling.src.fine_tuning.utils.get_peak_gpu_mem_usage import get_peak_gpu_mem_usage
+#from cassava_leaf_disease_classification.modelling.src.fine_tuning.utils.get_peak_gpu_mem_usage import get_peak_gpu_mem_usage
 
 #memory and execution time measurement
 import time
 import tracemalloc
 
-#get GPU currently being used by you
-gpu_devices = config.list_physical_devices('GPU')
+# #get GPU currently being used by you
+# gpu_devices = config.list_physical_devices('GPU')
 
-#set this device to allow for memory growth
-for gpu in gpu_devices:
-  config.experimental.set_memory_growth(gpu, True)
+# #set this device to allow for memory growth
+# for gpu in gpu_devices:
+#   config.experimental.set_memory_growth(gpu, True)
 
 ############## Preparing dictionaries before function call ############################
 
@@ -85,8 +85,7 @@ x_train, x_val, x_test, feature_extraction_memory_usage, feature_extraction_time
     candidate_layer_name = FE_SETTINGS['candidate_layer_name'],
     load_fine_tuned_model = FE_SETTINGS['load_fine_tuned_model'],
     best_dropout_rate = FE_SETTINGS['best_dropout_rate'],
-    fine_tuned_weights_path = FE_SETTINGS['fine_tuned_weights_path'],
-    use_gpu = True
+    fine_tuned_weights_path = FE_SETTINGS['fine_tuned_weights_path']
     )
 
 #add measurement results from feature extraction to relevant dictionaries
