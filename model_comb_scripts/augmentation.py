@@ -8,8 +8,8 @@ import tracemalloc
 
 print('Loading training images and associated labels...\n')
 
-x_train = np.load('/scratch/crwlia001/data/training_set/original/x_train.npy')
-y_train = np.load('/scratch/crwlia001/data/y_train.npy')
+x_train = np.load('/scratch/crwlia001/data/training_set/curated/curated_x_train.npy')
+y_train = np.load('/scratch/crwlia001/data/training_set/curated/curated_y_train.npy')
 
 print('training images and associated labels loaded!\n')
 
@@ -196,7 +196,7 @@ balanced_x_train = np.vstack((cbb_img_balanced, cbsd_img_balanced, cgm_img_balan
 balanced_y_train = np.ravel(np.hstack((cbb_labels_balanced, cbsd_labels_balanced, cgm_labels_balanced, cmd_labels_balanced, healthy_labels_balanced)))
 
 ##shuffle to remove any structural bias
-balanced_x_train, balanced_y_train = utils.shuffle(balanced_x_train, balanced_y_train)
+balanced_x_train, balanced_y_train = utils.shuffle(balanced_x_train, balanced_y_train, random_state=1)
 
 #terminate monitoring of RAM usage and execution time
 end_time_training = time.process_time()
@@ -215,9 +215,9 @@ assert len(balanced_x_train) == 6000
 assert len(balanced_y_train) == 6000
 
 #save augmented training images and labels
-np.save('/scratch/crwlia001/data/training_set/balanced/balanced_x_train.npy', balanced_x_train)
-np.save('/scratch/crwlia001/data/training_set/balanced/balanced_y_train.npy', balanced_y_train)
+np.save('/scratch/crwlia001/data/training_set/curated/balanced_curated_x_train.npy', balanced_x_train)
+np.save('/scratch/crwlia001/data/training_set/curated/balanced_curated_y_train.npy', balanced_y_train)
 
 #save dictionaries
-np.save('/home/crwlia001/augmentation/aug_mem_usage.npy', aug_mem_usage)
-np.save('/home/crwlia001/augmentation/aug_time.npy', aug_time)
+np.save('/home/crwlia001/augmentation/curated_aug_mem_usage.npy', aug_mem_usage)
+np.save('/home/crwlia001/augmentation/curated_aug_time.npy', aug_time)

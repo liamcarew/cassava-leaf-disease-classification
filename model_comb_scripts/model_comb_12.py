@@ -72,8 +72,8 @@ deep_learning_gridsearch(
   validation_data = validation_data,
   x_val = x_val,
   y_val = y_val,
-  num_epochs = 100,
+  num_epochs = 150,
   random_state = 1,
   start_fine_tune_layer_name = 'pool2_conv',
-  es_patience = 50,
+  es_patience = 100,
   gpu_devices = gpu_devices)

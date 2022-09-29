@@ -1,8 +1,8 @@
-# curated training set?: no
-# augmentation?: no
+# curated training set?: yes
+# augmentation?: yes
 # Feature Extraction?: No
 # Fine-tuning?: Yes
-# CNN backbone: MobileNetV2 (Backbone 1)
+# CNN backbone: DenseNet201 (Backbone 1)
 # Classifier: FCN
 
 #import necessary libraries
@@ -13,7 +13,7 @@ from tensorflow.keras.layers import Dense, Dropout, GlobalMaxPooling2D
 from tensorflow.keras.metrics import SparseCategoricalAccuracy
 from tensorflow.keras.optimizers import Adam, SGD
 from tensorflow.keras.losses import categorical_crossentropy
-from tensorflow.data import Dataset, AUTOTUNE
+from tensorflow import data
 from tensorflow.keras.callbacks import EarlyStopping
 from tensorflow.random import set_seed
 from tensorflow.keras.backend import clear_session
@@ -41,8 +41,8 @@ for gpu in gpu_devices:
 DATA_PATHS = {}
 
 #training set
-DATA_PATHS['training_images'] = '/scratch/crwlia001/data/training_set/original/x_train.npy'
-DATA_PATHS['training_labels'] = '/scratch/crwlia001/data/y_train.npy'
+DATA_PATHS['training_images'] = '/scratch/crwlia001/data/training_set/curated/curated_x_train.npy'
+DATA_PATHS['training_labels'] = '/scratch/crwlia001/data/training_set/curated/curated_y_train.npy'
 
 #validation set
 DATA_PATHS['validation_images'] = '/scratch/crwlia001/data/x_val.npy'
@@ -66,14 +66,14 @@ hyperparameter_comb = [_ for _ in product(dropout_rate, optimiser, learning_rate
 
 deep_learning_gridsearch(
   hyperparameter_combinations = hyperparameter_comb,
-  model_combination_num = 13,
-  backbone = 'MobileNetV2',
+  model_combination_num = 26,
+  backbone = 'DenseNet201',
   training_data = training_data,
   validation_data = validation_data,
   x_val = x_val,
   y_val = y_val,
   num_epochs = 150,
   random_state = 1,
-  start_fine_tune_layer_name = 'block_3_depthwise',
+  start_fine_tune_layer_name = 'pool2_conv',
   es_patience = 100,
   gpu_devices = gpu_devices)
