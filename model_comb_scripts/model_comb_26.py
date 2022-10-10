@@ -41,8 +41,8 @@ for gpu in gpu_devices:
 DATA_PATHS = {}
 
 #training set
-DATA_PATHS['training_images'] = '/scratch/crwlia001/data/training_set/curated/curated_x_train.npy'
-DATA_PATHS['training_labels'] = '/scratch/crwlia001/data/training_set/curated/curated_y_train.npy'
+DATA_PATHS['training_images'] = '/scratch/crwlia001/data/training_set/curated/balanced_curated_x_train.npy'
+DATA_PATHS['training_labels'] = '/scratch/crwlia001/data/training_set/curated/balanced_curated_y_train.npy'
 
 #validation set
 DATA_PATHS['validation_images'] = '/scratch/crwlia001/data/x_val.npy'

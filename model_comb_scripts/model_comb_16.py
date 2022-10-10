@@ -54,8 +54,8 @@ FE_SETTINGS = {}
 FE_SETTINGS['cnn_backbone_name'] = 'DenseNet201'
 FE_SETTINGS['candidate_layer_name'] = 'pool4_conv' #(14x14x896)
 FE_SETTINGS['load_fine_tuned_model'] = True
-FE_SETTINGS['best_dropout_rate'] = 0.5
-FE_SETTINGS['fine_tuned_weights_path'] = '/scratch/crwlia001/fine_tuned_model_weights/DenseNet201/model_comb_11_0.5_adam_0.001.h5'
+FE_SETTINGS['best_dropout_rate'] = 0.75
+FE_SETTINGS['fine_tuned_weights_path'] = '/scratch/crwlia001/fine_tuned_model_weights/DenseNet201/model_comb_11_0.75_adam_0.0001.h5'
 
 ################### Run Hyperparameter Gridsearch ####################################
 
