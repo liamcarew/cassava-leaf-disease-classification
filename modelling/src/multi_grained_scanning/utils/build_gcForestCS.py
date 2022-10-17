@@ -69,36 +69,38 @@
     #return MGS structure in JSON format
 #    return config
 
-def build_gcforestCS(n_estimators_mgs, tree_diversity_mgs, pooling_mgs, n_estimators_ca, tree_diversity_ca):
+def build_gcforestCS(n_estimators_mgs, pooling_mgs, n_estimators_ca):
 
     config = {}
     net = {}
 
     net["outputs"] = []
 
+    # #work out number of total estimators in each type of forest for MGS
+    # if tree_diversity_mgs:
+    #   n_estimators_mgs = n_estimators_mgs // 2
+
     if not pooling_mgs:
       net["outputs"].append("win/3x3/rf")
       #net["outputs"].append("win/4x4/rf")
       net["outputs"].append("win/5x5/rf")
       net["outputs"].append("win/7x7/rf")
-      if tree_diversity_mgs:
-        net["outputs"].append("win/3x3/ets")
-        #net["outputs"].append("win/4x4/ets")
-        net["outputs"].append("win/5x5/ets")
-        net["outputs"].append("win/7x7/ets")
+      net["outputs"].append("win/3x3/ets")
+      #net["outputs"].append("win/4x4/ets")
+      net["outputs"].append("win/5x5/ets")
+      net["outputs"].append("win/7x7/ets")
 
     else:
       net["outputs"].append("pool/3x3/rf")
       #net["outputs"].append("pool/4x4/rf")
       net["outputs"].append("pool/5x5/rf")
       net["outputs"].append("pool/7x7/rf")
-      if tree_diversity_mgs:
-        net["outputs"].append("pool/3x3/ets")
-        #net["outputs"].append("pool/4x4/ets")
-        net["outputs"].append("pool/5x5/ets")
-        net["outputs"].append("pool/7x7/ets")
 
-    
+      net["outputs"].append("pool/3x3/ets")
+      #net["outputs"].append("pool/4x4/ets")
+      net["outputs"].append("pool/5x5/ets")
+      net["outputs"].append("pool/7x7/ets")
+
       # net["outputs"].append("win1/3x3/ets")
       #net["outputs"].append("pool/3x3/rf")
       #net["outputs"].append("pool/4x4/ets")
@@ -113,9 +115,9 @@ def build_gcforestCS(n_estimators_mgs, tree_diversity_mgs, pooling_mgs, n_estima
     #   net["outputs"].append("pool/4x4/ets")
     #   net["outputs"].append("pool/5x5/ets")
 
-    #work out number of total estimators in each type of forest for MGS
-    if tree_diversity_mgs:
-      n_estimators_mgs = n_estimators_mgs // 2
+    # #work out number of total estimators in each type of forest for MGS
+    # if tree_diversity_mgs:
+    #   n_forests_mgs = n_forests_mgs // 2
 
     #3x3 sliding window
     layer_3x3 = {}
@@ -125,17 +127,14 @@ def build_gcforestCS(n_estimators_mgs, tree_diversity_mgs, pooling_mgs, n_estima
     layer_3x3["bottoms"].append("X")
     layer_3x3["bottoms"].append("y")
     layer_3x3["tops"] = []
-    #layer_3x3["tops"].append("win/3x3/ets")
+    layer_3x3["tops"].append("win/3x3/ets")
     layer_3x3["tops"].append("win/3x3/rf")
     layer_3x3["n_classes"] = 5
     layer_3x3["estimators"] = []
     layer_3x3["estimators"].append(
         {"n_folds":5,"type":"RandomForestClassifier", "n_estimators": n_estimators_mgs, "max_depth":10, "n_jobs":10, "min_samples_leaf":10})
-    
-    if tree_diversity_mgs:
-      layer_3x3["tops"].append("win/3x3/ets")
-      layer_3x3["estimators"].append(
-          {"n_folds":5,"type":"ExtraTreesClassifier", "n_estimators": n_estimators_mgs, "max_depth":10, "n_jobs":10, "min_samples_leaf":10})
+    layer_3x3["estimators"].append(
+        {"n_folds":5,"type":"ExtraTreesClassifier", "n_estimators": n_estimators_mgs, "max_depth":10, "n_jobs":10, "min_samples_leaf":10})
 
     layer_3x3["stride_x"] = 2
     layer_3x3["stride_y"] = 2
@@ -175,17 +174,14 @@ def build_gcforestCS(n_estimators_mgs, tree_diversity_mgs, pooling_mgs, n_estima
     layer_5x5["bottoms"].append("X")
     layer_5x5["bottoms"].append("y")
     layer_5x5["tops"] = []
-    #layer_5x5["tops"].append("win/5x5/ets")
+    layer_5x5["tops"].append("win/5x5/ets")
     layer_5x5["tops"].append("win/5x5/rf")
     layer_5x5["n_classes"] = 5
     layer_5x5["estimators"] = []
     layer_5x5["estimators"].append(
         {"n_folds":5,"type":"RandomForestClassifier","n_estimators": n_estimators_mgs,"max_depth": 10,"n_jobs":10,"min_samples_leaf":10})
-    
-    if tree_diversity_mgs:
-      layer_5x5["tops"].append("win/5x5/ets")
-      layer_5x5["estimators"].append(
-          {"n_folds":5,"type":"ExtraTreesClassifier","n_estimators": n_estimators_mgs,"max_depth": 10, "n_jobs":10, "min_samples_leaf":10})
+    layer_5x5["estimators"].append(
+        {"n_folds":5,"type":"ExtraTreesClassifier","n_estimators": n_estimators_mgs,"max_depth": 10, "n_jobs":10, "min_samples_leaf":10})
 
     layer_5x5["stride_x"] = 2
     layer_5x5["stride_y"] = 2
@@ -200,17 +196,14 @@ def build_gcforestCS(n_estimators_mgs, tree_diversity_mgs, pooling_mgs, n_estima
     layer_7x7["bottoms"].append("X")
     layer_7x7["bottoms"].append("y")
     layer_7x7["tops"] = []
-    #layer_7x7["tops"].append("win/7x7/ets")
+    layer_7x7["tops"].append("win/7x7/ets")
     layer_7x7["tops"].append("win/7x7/rf")
     layer_7x7["n_classes"] = 5
     layer_7x7["estimators"] = []
     layer_7x7["estimators"].append(
-       {"n_folds":5,"type":"RandomForestClassifier","n_estimators": n_estimators_mgs,"max_depth": 10,"n_jobs":40,"min_samples_leaf":10})
-    
-    if tree_diversity_mgs:
-     layer_7x7["tops"].append("win/7x7/ets")
-     layer_7x7["estimators"].append(
-         {"n_folds":5,"type":"ExtraTreesClassifier","n_estimators": n_estimators_mgs,"max_depth": 10, "n_jobs":40, "min_samples_leaf":10})
+       {"n_folds":5,"type":"RandomForestClassifier","n_estimators": n_estimators_mgs, "max_depth": 10,"n_jobs":40,"min_samples_leaf":10})
+    layer_7x7["estimators"].append(
+         {"n_folds":5,"type":"ExtraTreesClassifier","n_estimators": n_estimators_mgs, "max_depth": 10, "n_jobs":40, "min_samples_leaf":10})
 
     layer_7x7["stride_x"] = 2
     layer_7x7["stride_y"] = 2
@@ -250,37 +243,29 @@ def build_gcforestCS(n_estimators_mgs, tree_diversity_mgs, pooling_mgs, n_estima
       layers_pool["name"] = "pool"
 
       layers_pool["bottoms"] = []
-      #layers_pool["bottoms"].append("win/3x3/ets")
       layers_pool["bottoms"].append("win/3x3/rf")
+      layers_pool["bottoms"].append("win/3x3/ets")
       #layers_pool["bottoms"].append("win/4x4/ets")
       #layers_pool["bottoms"].append("win/4x4/rf")
-      #layers_pool["bottoms"].append("win/5x5/ets")
       layers_pool["bottoms"].append("win/5x5/rf")
+      layers_pool["bottoms"].append("win/5x5/ets")
       #layers_pool["bottoms"].append("win/7x7/ets")
       layers_pool["bottoms"].append("win/7x7/rf")
+      layers_pool["bottoms"].append("win/7x7/ets")
       #layers_pool["bottoms"].append("win/9x9/ets")
       #layers_pool["bottoms"].append("win/9x9/rf")
-
-      if tree_diversity_mgs:
-        layers_pool["bottoms"].append("win/3x3/ets")
-        #layers_pool["bottoms"].append("win/4x4/ets")
-        layers_pool["bottoms"].append("win/5x5/ets")
-        layers_pool["bottoms"].append("win/7x7/ets")
 
       layers_pool["tops"] = []
       #layers_pool["tops"].append("pool/5x5/ets")
       layers_pool["tops"].append("pool/3x3/rf")
+      layers_pool["tops"].append("pool/3x3/ets")
       #layers_pool["tops"].append("pool/7x7/ets")
       #layers_pool["tops"].append("pool/4x4/rf")
       #layers_pool["tops"].append("pool/9x9/ets")
       layers_pool["tops"].append("pool/5x5/rf")
+      layers_pool["tops"].append("pool/5x5/ets")
       layers_pool["tops"].append("pool/7x7/rf")
-
-      if tree_diversity_mgs:
-        layers_pool["tops"].append("pool/3x3/ets")
-        #layers_pool["tops"].append("pool/4x4/ets")
-        layers_pool["tops"].append("pool/5x5/ets")
-        layers_pool["tops"].append("pool/7x7/ets")
+      layers_pool["tops"].append("pool/7x7/ets")
 
       layers_pool["pool_method"] = "avg"
       layers_pool["win_x"] = 2
@@ -298,8 +283,8 @@ def build_gcforestCS(n_estimators_mgs, tree_diversity_mgs, pooling_mgs, n_estima
     #cascade module
 
     #work out number of total estimators in each type of forest for CF
-    if tree_diversity_ca:
-      n_estimators_ca = n_estimators_ca / 2
+    # if tree_diversity_ca:
+    #   n_estimators_ca = n_estimators_ca // 2
 
     ca_config = {}
     ca_config["random_state"] = 1
@@ -310,11 +295,20 @@ def build_gcforestCS(n_estimators_mgs, tree_diversity_mgs, pooling_mgs, n_estima
     # ca_config["look_indexs_cycle"].append([2, 3])
     # ca_config["look_indexs_cycle"].append([4, 5])
     ca_config["n_classes"] = 5
+
     ca_config["estimators"] = []
+
+    #4 random forests
+    ca_config["estimators"].append({"n_folds": 5, "type": "RandomForestClassifier", "n_estimators": n_estimators_ca, "max_depth": 10, "n_jobs": 10})
+    ca_config["estimators"].append({"n_folds": 5, "type": "RandomForestClassifier", "n_estimators": n_estimators_ca, "max_depth": 10, "n_jobs": 10})
+    ca_config["estimators"].append({"n_folds": 5, "type": "RandomForestClassifier", "n_estimators": n_estimators_ca, "max_depth": 10, "n_jobs": 10})
     ca_config["estimators"].append({"n_folds": 5, "type": "RandomForestClassifier", "n_estimators": n_estimators_ca, "max_depth": 10, "n_jobs": 10})
 
-    if tree_diversity_ca:
-      ca_config["estimators"].append({"n_folds": 5, "type": "ExtraTreesClassifier", "n_estimators": n_estimators_ca, "max_depth": 10, "n_jobs": 10})
+    #4 extremely-random forests
+    ca_config["estimators"].append({"n_folds": 5, "type": "ExtraTreesClassifier", "n_estimators": n_estimators_ca, "max_depth": 10, "n_jobs": 10})
+    ca_config["estimators"].append({"n_folds": 5, "type": "ExtraTreesClassifier", "n_estimators": n_estimators_ca, "max_depth": 10, "n_jobs": 10})
+    ca_config["estimators"].append({"n_folds": 5, "type": "ExtraTreesClassifier", "n_estimators": n_estimators_ca, "max_depth": 10, "n_jobs": 10})
+    ca_config["estimators"].append({"n_folds": 5, "type": "ExtraTreesClassifier", "n_estimators": n_estimators_ca, "max_depth": 10, "n_jobs": 10})
 
     config["net"] = net
     config["cascadeCS"] = ca_config

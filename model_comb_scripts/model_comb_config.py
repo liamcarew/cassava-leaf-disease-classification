@@ -127,18 +127,16 @@ def gcForestCS_gridsearch(data_paths, hyp_settings, model_combination_num, cnn_f
         current_comb_cfmats = {}
 
         #assign hyperparameters to variables
-        n_estimators_mgs, tree_diversity_mgs = comb[0]
+        n_estimators_mgs = comb[0]
         pooling_mgs = comb[1]
-        n_estimators_ca, tree_diversity_ca = comb[2]
+        n_estimators_ca = comb[2]
 
         print('Fitting gcForestCS model using the following hyperparameter settings:\nn_estimators: {}, tree_diversity_mgs: {}, n_estimators_ca: {}, tree_diversity_ca: {}\n'.format(n_estimators_mgs, tree_diversity_mgs, n_estimators_ca, tree_diversity_ca))
 
         #get model configuration
         config = build_gcforestCS(n_estimators_mgs = n_estimators_mgs,
-                                  tree_diversity_mgs = tree_diversity_mgs,
                                   pooling_mgs = pooling_mgs,
-                                  n_estimators_ca = n_estimators_ca,
-                                  tree_diversity_ca = tree_diversity_ca)
+                                  n_estimators_ca = n_estimators_ca)
 
         #create a model instance using model configuration
         cnn_gc = GCForestCS(config)
