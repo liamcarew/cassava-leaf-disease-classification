@@ -119,7 +119,7 @@ def gcForestCS_gridsearch(data_paths, hyp_settings, model_combination_num, cnn_f
     #hyp_comb_results = {}
 
     #start measurement of hyperparameter gridsearch execution time
-    start_time_hyp_gridsearch = time.process_time()
+    start_time_hyp_gridsearch = time.perf_counter()
 
     for comb in hyperparameter_comb:
 
@@ -131,7 +131,7 @@ def gcForestCS_gridsearch(data_paths, hyp_settings, model_combination_num, cnn_f
         pooling_mgs = comb[1]
         n_estimators_ca = comb[2]
 
-        print('Fitting gcForestCS model using the following hyperparameter settings:\nn_estimators: {}, tree_diversity_mgs: {}, n_estimators_ca: {}, tree_diversity_ca: {}\n'.format(n_estimators_mgs, tree_diversity_mgs, n_estimators_ca, tree_diversity_ca))
+        print('Fitting gcForestCS model using the following hyperparameter settings:\nn_estimators_mgs: {}, n_estimators_ca: {}\n'.format(n_estimators_mgs, n_estimators_ca))
 
         #get model configuration
         config = build_gcforestCS(n_estimators_mgs = n_estimators_mgs,
@@ -144,13 +144,13 @@ def gcForestCS_gridsearch(data_paths, hyp_settings, model_combination_num, cnn_f
         #initialise variables to monitor RAM usage and execution time during training
         tracemalloc.start()
         #tracemalloc.reset_peak()
-        start_time_training = time.process_time()
+        start_time_training = time.perf_counter()
 
         #fit model to training data
         cnn_gc.fit_transform(x_train, y_train)
 
         #terminate monitoring of RAM usage and execution time
-        end_time_training = time.process_time()
+        end_time_training = time.perf_counter()
         first_size, first_peak = tracemalloc.get_traced_memory()
         tracemalloc.stop()
 
@@ -165,13 +165,13 @@ def gcForestCS_gridsearch(data_paths, hyp_settings, model_combination_num, cnn_f
         #execution_time['training', str(comb)] = training_exec_time #in seconds
 
         ##repeat the above for predictions
-        start_time_predictions_val = time.process_time()
+        start_time_predictions_val = time.perf_counter()
         tracemalloc.start()
 
         #perform predictions
         y_val_pred = cnn_gc.predict(x_val)
 
-        end_time_predictions_val = time.process_time()
+        end_time_predictions_val = time.perf_counter()
         second_size, second_peak = tracemalloc.get_traced_memory()
         tracemalloc.stop()
 
@@ -197,13 +197,13 @@ def gcForestCS_gridsearch(data_paths, hyp_settings, model_combination_num, cnn_f
         #overall_acc['val', str(comb)] = round(accuracy_score(y_val, y_val_pred), 3)
 
         ##Repeat the above for test set
-        start_time_predictions_test = time.process_time()
+        start_time_predictions_test = time.perf_counter()
         tracemalloc.start()
 
         #perform predictions
         y_test_pred = cnn_gc.predict(x_test)
 
-        end_time_predictions_test = time.process_time()
+        end_time_predictions_test = time.perf_counter()
         third_size, third_peak = tracemalloc.get_traced_memory()
         tracemalloc.stop()
 
@@ -235,7 +235,7 @@ def gcForestCS_gridsearch(data_paths, hyp_settings, model_combination_num, cnn_f
         conf_mats[str(comb)] = current_comb_cfmats
 
     #end measurement of running time for gridsearch
-    end_time_hyp_gridsearch = time.process_time()
+    end_time_hyp_gridsearch = time.perf_counter()
 
     #determine execution time for gridsearch and add it to dictionary
     hyp_gridsearch_exec_time = end_time_hyp_gridsearch - start_time_hyp_gridsearch

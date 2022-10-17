@@ -85,7 +85,7 @@ def perform_feature_extraction(x_train, y_train, x_val, y_val, x_test, y_test, c
 
     #initialise memory usage and execution time measurement variables
     tracemalloc.start()
-    start_time_training = time.process_time()
+    start_time_training = time.perf_counter()
 
     # #initialise variables to monitor RAM usage and execution time during FE
     # peak_ram_before_fe_train = get_peak_gpu_mem_usage(gpu_devices)
@@ -98,7 +98,7 @@ def perform_feature_extraction(x_train, y_train, x_val, y_val, x_test, y_test, c
     # end_time_fe_train = time.process_time()
 
     #terminate monitoring of RAM usage and execution time
-    end_time_training = time.process_time()
+    end_time_training = time.perf_counter()
     first_size, first_peak = tracemalloc.get_traced_memory()
     tracemalloc.stop()
 
@@ -138,12 +138,12 @@ def perform_feature_extraction(x_train, y_train, x_val, y_val, x_test, y_test, c
 
     #initialise memory usage and execution time measurement variables
     tracemalloc.start()
-    start_time_val = time.process_time()
+    start_time_val = time.perf_counter()
 
     validation_data = cnn_feature_extractor.predict(x = validation_data, verbose = 1)
 
     #terminate monitoring of RAM usage and execution time
-    end_time_val = time.process_time()
+    end_time_val = time.perf_counter()
     second_size, second_peak = tracemalloc.get_traced_memory()
     tracemalloc.stop()
 
@@ -165,7 +165,7 @@ def perform_feature_extraction(x_train, y_train, x_val, y_val, x_test, y_test, c
 
     #initialise memory usage and execution time measurement variables
     tracemalloc.start()
-    start_time_test = time.process_time()
+    start_time_test = time.perf_counter()
 
     testing_data = cnn_feature_extractor.predict(x = testing_data, verbose = 1)
 
@@ -174,7 +174,7 @@ def perform_feature_extraction(x_train, y_train, x_val, y_val, x_test, y_test, c
     # end_time_fe_test = time.process_time()
 
     #terminate monitoring of RAM usage and execution time
-    end_time_test = time.process_time()
+    end_time_test = time.perf_counter()
     third_size, third_peak = tracemalloc.get_traced_memory()
     tracemalloc.stop()
 
