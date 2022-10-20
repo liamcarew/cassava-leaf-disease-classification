@@ -50,5 +50,6 @@ HYP_SETTINGS['combs_ca'] = [250, 500, 1000]
 gcForestCS_gridsearch(
     data_paths = DATA_PATHS,
     hyp_settings = HYP_SETTINGS,
-    model_combination_num = 2
+    model_combination_num = 2,
+    n_jobs = 15
     )

@@ -17,7 +17,7 @@ from itertools import product
 import time
 import tracemalloc
 
-def gcForestCS_gridsearch(data_paths, hyp_settings, model_combination_num, cnn_feature_extraction=False, feature_extraction_settings=None):
+def gcForestCS_gridsearch(data_paths, hyp_settings, model_combination_num, n_jobs, cnn_feature_extraction=False, feature_extraction_settings=None):
 
     ###################### Importing Data ###################################
 
@@ -136,7 +136,8 @@ def gcForestCS_gridsearch(data_paths, hyp_settings, model_combination_num, cnn_f
         #get model configuration
         config = build_gcforestCS(n_estimators_mgs = n_estimators_mgs,
                                   pooling_mgs = pooling_mgs,
-                                  n_estimators_ca = n_estimators_ca)
+                                  n_estimators_ca = n_estimators_ca,
+                                  n_jobs = n_jobs)
 
         #create a model instance using model configuration
         cnn_gc = GCForestCS(config)

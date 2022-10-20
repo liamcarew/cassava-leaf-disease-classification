@@ -63,6 +63,7 @@ gcForestCS_gridsearch(
     data_paths = DATA_PATHS,
     hyp_settings = HYP_SETTINGS,
     model_combination_num = 19,
+    n_jobs = 10,
     cnn_feature_extraction=True,
     feature_extraction_settings=FE_SETTINGS
     )
