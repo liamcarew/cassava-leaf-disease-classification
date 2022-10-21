@@ -136,8 +136,7 @@ def gcForestCS_gridsearch(data_paths, hyp_settings, model_combination_num, n_job
         #get model configuration
         config = build_gcforestCS(n_estimators_mgs = n_estimators_mgs,
                                   pooling_mgs = pooling_mgs,
-                                  n_estimators_ca = n_estimators_ca,
-                                  n_jobs = n_jobs)
+                                  n_estimators_ca = n_estimators_ca)
 
         #create a model instance using model configuration
         cnn_gc = GCForestCS(config)

@@ -45,9 +45,9 @@ DATA_PATHS['test_labels'] = '/scratch/crwlia001/data/y_test.npy'
 
 ### hyperparameter settings in gridsearch ###
 HYP_SETTINGS = {}
-HYP_SETTINGS['combs_mgs'] = [250, 500, 1000]
+HYP_SETTINGS['combs_mgs'] = [500, 1000]
 HYP_SETTINGS['combs_pooling_mgs'] = [False]
-HYP_SETTINGS['combs_ca'] = [250, 500, 1000]
+HYP_SETTINGS['combs_ca'] = [500, 1000]
 
 ### feature extraction settings ###
 FE_SETTINGS = {}
@@ -63,7 +63,6 @@ gcForestCS_gridsearch(
     data_paths = DATA_PATHS,
     hyp_settings = HYP_SETTINGS,
     model_combination_num = 27,
-    n_jobs = 10,
     cnn_feature_extraction=True,
     feature_extraction_settings=FE_SETTINGS
     )
