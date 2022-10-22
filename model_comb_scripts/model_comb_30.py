@@ -46,9 +46,9 @@ DATA_PATHS['test_labels'] = '/scratch/crwlia001/data/y_test.npy'
 
 ### hyperparameter settings in gridsearch ###
 HYP_SETTINGS = {}
-HYP_SETTINGS['combs_mgs'] = [500, 1000]
+HYP_SETTINGS['combs_mgs'] = [50, 100]
 HYP_SETTINGS['combs_pooling_mgs'] = [True]
-HYP_SETTINGS['combs_ca'] = [500, 1000]
+HYP_SETTINGS['combs_ca'] = [50, 100]
 
 ### feature extraction settings ###
 FE_SETTINGS = {}
