@@ -1,9 +1,9 @@
 # curated training set?: no
-# augmentation?: yes
+# augmentation?: no
 # Feature Extraction?: yes
 # Fine-tuning?: no
 # CNN backbone: DenseNet201 (Backbone 1)
-# Candidate layer 1 ('pool3_conv' (28x28x256))
+# Candidate layer 3 ('conv5_block32_concat' - 7x7x1920)
 # Classifier: gcForestCS
 
 #import necessary libraries
@@ -29,15 +29,15 @@ import tracemalloc
 #### paths to images and labels for each split ###
 DATA_PATHS = {}
 
-#specify training set feature map and associated label paths
-DATA_PATHS['training_images'] = '/scratch/crwlia001/data/training_set/balanced/balanced_x_train.npy'
-DATA_PATHS['training_labels'] = '/scratch/crwlia001/data/training_set/balanced/balanced_y_train.npy'
+#training set
+DATA_PATHS['training_images'] = '/scratch/crwlia001/data/training_set/original/x_train.npy'
+DATA_PATHS['training_labels'] = '/scratch/crwlia001/data/y_train.npy'
 
-#specify validation set feature map and associated label paths
+#validation set
 DATA_PATHS['validation_images'] = '/scratch/crwlia001/data/x_val.npy'
 DATA_PATHS['validation_labels'] = '/scratch/crwlia001/data/y_val.npy'
 
-#specify test set feature map and associated label paths
+#test set
 DATA_PATHS['test_images'] = '/scratch/crwlia001/data/x_test.npy'
 DATA_PATHS['test_labels'] = '/scratch/crwlia001/data/y_test.npy'
 
@@ -50,7 +50,7 @@ HYP_SETTINGS['combs_ca'] = [50, 100]
 ### feature extraction settings ###
 FE_SETTINGS = {}
 FE_SETTINGS['cnn_backbone_name'] = 'DenseNet201'
-FE_SETTINGS['candidate_layer_name'] = 'pool3_conv' #(28x28x256)
+FE_SETTINGS['candidate_layer_name'] = 'conv5_block32_concat' #7x7x1920
 FE_SETTINGS['load_fine_tuned_model'] = False
 FE_SETTINGS['best_dropout_rate'] = None
 FE_SETTINGS['fine_tuned_weights_path'] = None

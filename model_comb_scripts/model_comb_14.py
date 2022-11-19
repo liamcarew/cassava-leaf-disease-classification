@@ -1,79 +1,66 @@
 # curated training set?: no
 # augmentation?: yes
-# Feature Extraction?: No
-# Fine-tuning?: Yes
-# CNN backbone: MobileNetV2 (Backbone 1)
-# Classifier: FCN
+# Feature Extraction?: yes
+# Fine-tuning?: no
+# CNN backbone: MobileNetV2 (Backbone 2)
+# Candidate layer 3 ('Conv_1' #(7x7x1280))
+# Classifier: gcForestCS
 
 #import necessary libraries
-from tensorflow.keras.applications.densenet import DenseNet201
-from tensorflow.keras.applications.mobilenet_v2 import MobileNetV2
-from tensorflow.keras import models
-from tensorflow.keras.layers import Dense, Dropout, GlobalMaxPooling2D
-from tensorflow.keras.metrics import SparseCategoricalAccuracy
-from tensorflow.keras.optimizers import Adam, SGD
-from tensorflow.keras.losses import categorical_crossentropy
-from tensorflow import data
-from tensorflow.keras.callbacks import EarlyStopping
-from tensorflow.random import set_seed
-from tensorflow.keras.backend import clear_session
-from tensorflow import config
-from sklearn.metrics import confusion_matrix, accuracy_score, f1_score
+
+##gcForestCS
+import argparse
+import numpy as np
+import pickle
+import sys
+from sklearn.metrics import accuracy_score, confusion_matrix, f1_score
+import random
+from sklearn import utils
+from cassava_leaf_disease_classification.modelling.src.multi_grained_scanning.utils.build_gcForestCS import build_gcforestCS
+#from cassava_leaf_disease_classification.modelling.src.multi_grained_scanning.utils.reshape_inputs import reshape_inputs
+from cassava_leaf_disease_classification.modelling.src.multi_grained_scanning.utils.gcForestCS.lib.gcforest.gcforestCS import GCForestCS
+from model_comb_config import gcForestCS_gridsearch
 from itertools import product
+
+##memory and execution time measurement
 import time
-from cassava_leaf_disease_classification.modelling.src.fine_tuning.utils.build_deep_learning_model import build_deep_learning_model
-from cassava_leaf_disease_classification.modelling.src.fine_tuning.utils.get_peak_gpu_mem_usage import get_peak_gpu_mem_usage
-from cassava_leaf_disease_classification.modelling.src.fine_tuning.utils.deep_learning_data_preparation import deep_learning_data_preparation
-from cassava_leaf_disease_classification.modelling.src.fine_tuning.utils.deep_learning_gridsearch import deep_learning_gridsearch
-
-############## configure GPU to allow for memory usage measurement #####################
-
-#get GPU currently being used by you
-gpu_devices = config.list_physical_devices('GPU')
-
-#set this device to allow for memory growth
-for gpu in gpu_devices:
-  config.experimental.set_memory_growth(gpu, True)
-
-############## Preparing for data preparation function call ############################
+import tracemalloc
 
 #### paths to images and labels for each split ###
 DATA_PATHS = {}
 
-#training set
+#specify training set feature map and associated label paths
 DATA_PATHS['training_images'] = '/scratch/crwlia001/data/training_set/balanced/balanced_x_train.npy'
 DATA_PATHS['training_labels'] = '/scratch/crwlia001/data/training_set/balanced/balanced_y_train.npy'
 
-#validation set
+#specify validation set feature map and associated label paths
 DATA_PATHS['validation_images'] = '/scratch/crwlia001/data/x_val.npy'
 DATA_PATHS['validation_labels'] = '/scratch/crwlia001/data/y_val.npy'
 
-############ Perform data preparation ########################
+#specify test set feature map and associated label paths
+DATA_PATHS['test_images'] = '/scratch/crwlia001/data/x_test.npy'
+DATA_PATHS['test_labels'] = '/scratch/crwlia001/data/y_test.npy'
 
-training_data, validation_data, x_val, y_val = deep_learning_data_preparation(data_paths = DATA_PATHS, batch_size = 32)
+### hyperparameter settings in gridsearch ###
+HYP_SETTINGS = {}
+HYP_SETTINGS['combs_mgs'] = [50, 100]
+HYP_SETTINGS['combs_pooling_mgs'] = [False]
+HYP_SETTINGS['combs_ca'] = [50, 100]
 
-############ Prepare gridsearch #######################
+### feature extraction settings ###
+FE_SETTINGS = {}
+FE_SETTINGS['cnn_backbone_name'] = 'MobileNetV2'
+FE_SETTINGS['candidate_layer_name'] = 'Conv_1' #(7x7x1280)
+FE_SETTINGS['load_fine_tuned_model'] = False
+FE_SETTINGS['best_dropout_rate'] = None
+FE_SETTINGS['fine_tuned_weights_path'] = None
 
-#create a parameter grid of the different values to use during gridsearch
-dropout_rate = [0.25, 0.5, 0.75]
-optimiser = ['adam', 'sgd']
-learning_rate = [0.0001, 0.001, 0.01]
+################### Run Hyperparameter Gridsearch ####################################
 
-#produce a list of all of the different hyperparameter combinations
-hyperparameter_comb = [_ for _ in product(dropout_rate, optimiser, learning_rate)]
-
-############ Perform deep learning gridsearch ################
-
-deep_learning_gridsearch(
-  hyperparameter_combinations = hyperparameter_comb,
-  model_combination_num = 14,
-  backbone = 'MobileNetV2',
-  training_data = training_data,
-  validation_data = validation_data,
-  x_val = x_val,
-  y_val = y_val,
-  num_epochs = 100,
-  random_state = 1,
-  start_fine_tune_layer_name = 'block_3_depthwise',
-  es_patience = 75,
-  gpu_devices = gpu_devices)
+gcForestCS_gridsearch(
+    data_paths = DATA_PATHS,
+    hyp_settings = HYP_SETTINGS,
+    model_combination_num = 14,
+    cnn_feature_extraction=True,
+    feature_extraction_settings=FE_SETTINGS
+    )

@@ -3,7 +3,7 @@
 # Feature Extraction?: yes
 # Fine-tuning?: no
 # CNN backbone: DenseNet201 (Backbone 1)
-# Candidate layer 2 ('pool4_conv' (14x14x896))
+# Candidate layer 1 ('pool3_conv' (28x28x256))
 # Classifier: gcForestCS
 
 #import necessary libraries
@@ -50,7 +50,7 @@ HYP_SETTINGS['combs_ca'] = [50, 100]
 ### feature extraction settings ###
 FE_SETTINGS = {}
 FE_SETTINGS['cnn_backbone_name'] = 'DenseNet201'
-FE_SETTINGS['candidate_layer_name'] = 'pool4_conv' #(14x14x896)
+FE_SETTINGS['candidate_layer_name'] = 'pool3_conv' #(28x28x256)
 FE_SETTINGS['load_fine_tuned_model'] = False
 FE_SETTINGS['best_dropout_rate'] = None
 FE_SETTINGS['fine_tuned_weights_path'] = None

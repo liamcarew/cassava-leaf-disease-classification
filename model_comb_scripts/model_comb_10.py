@@ -1,5 +1,5 @@
 # curated training set?: no
-# augmentation?: yes
+# augmentation?: no
 # Feature Extraction?: yes
 # Fine-tuning?: no
 # CNN backbone: MobileNetV2 (Backbone 2)
@@ -26,18 +26,20 @@ from itertools import product
 import time
 import tracemalloc
 
+############## Preparing dictionaries before function call ############################
+
 #### paths to images and labels for each split ###
 DATA_PATHS = {}
 
-#specify training set feature map and associated label paths
-DATA_PATHS['training_images'] = '/scratch/crwlia001/data/training_set/balanced/balanced_x_train.npy'
-DATA_PATHS['training_labels'] = '/scratch/crwlia001/data/training_set/balanced/balanced_y_train.npy'
+#training set
+DATA_PATHS['training_images'] = '/scratch/crwlia001/data/training_set/original/x_train.npy'
+DATA_PATHS['training_labels'] = '/scratch/crwlia001/data/y_train.npy'
 
-#specify validation set feature map and associated label paths
+#validation set
 DATA_PATHS['validation_images'] = '/scratch/crwlia001/data/x_val.npy'
 DATA_PATHS['validation_labels'] = '/scratch/crwlia001/data/y_val.npy'
 
-#specify test set feature map and associated label paths
+#test set
 DATA_PATHS['test_images'] = '/scratch/crwlia001/data/x_test.npy'
 DATA_PATHS['test_labels'] = '/scratch/crwlia001/data/y_test.npy'
 
