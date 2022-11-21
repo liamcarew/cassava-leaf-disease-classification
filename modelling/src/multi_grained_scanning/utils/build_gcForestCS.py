@@ -266,6 +266,8 @@ def build_gcforestCS(n_estimators_mgs, pooling_mgs, n_estimators_ca):
       layers_pool["pool_method"] = "avg"
       layers_pool["win_x"] = 2
       layers_pool["win_y"] = 2
+      layers_pool["stride_x"] = 1
+      layers_pool["stride_y"] = 1
 
     layers = []
     layers.append(layer_3x3)
