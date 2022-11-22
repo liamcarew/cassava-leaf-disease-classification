@@ -1,5 +1,5 @@
 # curated training set?: yes
-# augmentation?: yes
+# augmentation?: no
 # Feature Extraction?: No
 # Fine-tuning?: Yes
 # CNN backbone: DenseNet201 (Backbone 1)
@@ -41,8 +41,8 @@ for gpu in gpu_devices:
 DATA_PATHS = {}
 
 #training set
-DATA_PATHS['training_images'] = '/scratch/crwlia001/data/training_set/curated/balanced_curated_x_train.npy'
-DATA_PATHS['training_labels'] = '/scratch/crwlia001/data/training_set/curated/balanced_curated_y_train.npy'
+DATA_PATHS['training_images'] = '/scratch/crwlia001/data/training_set/curated/curated_x_train.npy'
+DATA_PATHS['training_labels'] = '/scratch/crwlia001/data/training_set/curated/curated_y_train.npy'
 
 #validation set
 DATA_PATHS['validation_images'] = '/scratch/crwlia001/data/x_val.npy'
@@ -66,7 +66,7 @@ hyperparameter_comb = [_ for _ in product(dropout_rate, optimiser, learning_rate
 
 deep_learning_gridsearch(
   hyperparameter_combinations = hyperparameter_comb,
-  model_combination_num = 26,
+  model_combination_num = 33,
   backbone = 'DenseNet201',
   training_data = training_data,
   validation_data = validation_data,
