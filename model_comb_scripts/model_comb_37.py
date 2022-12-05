@@ -1,9 +1,10 @@
 # curated training set?: yes
-# augmentation?: yes
+# augmentation?: no
 # Feature Extraction?: Yes
 # Fine-tuning?: Yes
 # CNN backbone: DenseNet (Backbone 1)
-# Candidate layer 3 ('conv5_block32_concat' #7x7x1920)
+# Candidate layer 3 ('Conv_1' #(7x7x1280))
+# Pooling after MGS: no
 # Classifier: gcForestCS
 
 #import necessary libraries
@@ -46,23 +47,23 @@ DATA_PATHS['test_labels'] = '/scratch/crwlia001/data/y_test.npy'
 ### hyperparameter settings in gridsearch ###
 HYP_SETTINGS = {}
 HYP_SETTINGS['combs_mgs'] = [50, 100]
-HYP_SETTINGS['combs_pooling_mgs'] = [True]
+HYP_SETTINGS['combs_pooling_mgs'] = [False]
 HYP_SETTINGS['combs_ca'] = [50, 100]
 
 ### feature extraction settings ###
 FE_SETTINGS = {}
-FE_SETTINGS['cnn_backbone_name'] = 'DenseNet201'
-FE_SETTINGS['candidate_layer_name'] = 'conv5_block32_concat' #(7x7x1920)
+FE_SETTINGS['cnn_backbone_name'] = 'MobileNetV2'
+FE_SETTINGS['candidate_layer_name'] = 'Conv_1' #(7x7x1280)
 FE_SETTINGS['load_fine_tuned_model'] = True
-FE_SETTINGS['best_dropout_rate'] = 
-FE_SETTINGS['fine_tuned_weights_path'] = 
+FE_SETTINGS['best_dropout_rate'] = 0.25
+FE_SETTINGS['fine_tuned_weights_path'] = '/scratch/crwlia001/fine_tuned_model_weights/MobileNetV2/model_comb_34_0.25_sgd_0.01.h5'
 
 ################### Run Hyperparameter Gridsearch ####################################
 
 gcForestCS_gridsearch(
     data_paths = DATA_PATHS,
     hyp_settings = HYP_SETTINGS,
-    model_combination_num = 36,
+    model_combination_num = 37,
     cnn_feature_extraction=True,
     feature_extraction_settings=FE_SETTINGS
     )

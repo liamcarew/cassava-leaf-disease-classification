@@ -55,8 +55,8 @@ FE_SETTINGS = {}
 FE_SETTINGS['cnn_backbone_name'] = 'MobileNetV2'
 FE_SETTINGS['candidate_layer_name'] = 'Conv_1' #(7x7x1280)
 FE_SETTINGS['load_fine_tuned_model'] = True
-FE_SETTINGS['best_dropout_rate'] = 
-FE_SETTINGS['fine_tuned_weights_path'] = 
+FE_SETTINGS['best_dropout_rate'] = 0.25
+FE_SETTINGS['fine_tuned_weights_path'] = '/scratch/crwlia001/fine_tuned_model_weights/MobileNetV2/model_comb_34_0.25_sgd_0.01.h5'
 
 ################### Run Hyperparameter Gridsearch ####################################
 
