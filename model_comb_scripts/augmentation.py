@@ -15,6 +15,19 @@ print('training images and associated labels loaded!\n')
 
 #function that returns the indices in NumPy array that correspond to a given class
 def get_class_indices(label_array):
+  """
+  Function that separates the indices of training images based on class
+
+  Args:
+      label_array (int): NumPy array of training image labels
+
+  Returns:
+      index_pos_cbb (int): index positions of CBB images in training set
+      index_pos_cbsd (int): index positions of CBSD images in training set
+      index_pos_cgm (int): index positions of CGM images in training set
+      index_pos_cmd (int): index positions of CMD images in training set
+      index_pos_healthy (int): index positions of Healthy images in training set
+  """
 
   index_pos_cbb = np.where(label_array == 0)[0]
   index_pos_cbsd = np.where(label_array == 1)[0]
@@ -40,6 +53,15 @@ del y_train
 
 #function that takes in an image and applies an augmentation
 def augment_image(image, augmentation, aug_img_array, counter):
+  """
+  Function that performs augmentation on an input training image
+
+  Args:
+      image (float): The training image that augmentation will be applied to
+      augmentation (str): The type of augmentation being applied to the input image (vertical flip, horizontal flip, or both)
+      aug_img_array (float): NumPy array which the augmented training image will be added to
+      counter (int): a counter variable to denote the index in the augmentation array to add the augmented training image
+  """
 
   #check that augmentation name is correct
   assert augmentation in ['vertical_flip', 'horizontal_flip', 'vertical_and_horizontal_flip']
@@ -64,7 +86,18 @@ def augment_image(image, augmentation, aug_img_array, counter):
   counter += 1
 
 #function that returns a sample of specified size
-def class_sample(img_array, label, sample_size, random_state):
+def class_sample(img_array, sample_size, random_state):
+  """
+  Function that returns a sample of the augmented training images for a class
+
+  Args:
+      img_array (float): NumPy array of the augmented training images
+      sample_size (int): The number of augmented images to sample
+      random_state (int): random seed to use when sampling training images
+
+  Returns:
+      aug_img_sample (float): The sample of augmented training images
+  """
   
   #get a random sample of 20 image indices from each class (balanced 100 image sample)
   np.random.seed(random_state)
@@ -76,6 +109,19 @@ def class_sample(img_array, label, sample_size, random_state):
 
 #function that takes in an image and label array for a given minority class and returns balanced image and label arrays (1200) than include all the original images with the augmented ones added
 def upsample_minority_class(img_array, label, no_aug_combs, balanced_sample_size):
+  """
+  Function that upsample a minority class using the augmented image array
+
+  Args:
+      img_array (float): NumPy array of the augmented training images
+      label (int): NumPy array of the associated training image labels
+      no_aug_combs (int): The number of augmentation combinations applied to the training images
+      balanced_sample_size (int): The final number of images to have in this class after balancing
+
+  Returns:
+      balanced_class_after_aug_imgs (float): NumPy array of class images after balancing
+      balanced_class_after_aug_labels (int): NumPy array of associated class labels after balancing
+  """
 
   #specify image size in array (height, width, n_channels)
   #IMG_SIZE = (224,224,3)

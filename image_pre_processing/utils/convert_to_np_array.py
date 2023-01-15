@@ -1,6 +1,17 @@
 import numpy as np
 
 def convert_to_np_array(dataset, split_name):
+  """
+  Function that converts images and labels in TFRecords into separate NumPy arrays
+
+  Args:
+      dataset (int): The TFRecord containing both images and their associated image labels
+      split_name (str): the data split the function is being invoked for
+
+  Returns:
+      x_cassava: NumPy array of images
+      y_cassava: NumPy array of image labels
+  """
 
   #get the number of images in dataset
   num_images = len(dataset)

@@ -17,7 +17,30 @@ import time
 import tracemalloc
 
 def perform_feature_extraction(x_train, y_train, x_val, y_val, x_test, y_test, cnn_backbone_name, candidate_layer_name, load_fine_tuned_model=False, best_dropout_rate=None, fine_tuned_weights_path=None, use_gpu=False):
+    """
+    Performs CNN feature extraction based on the specifications in the parameter settings.
 
+    Args:
+        x_train (float): NumPy array of training images
+        y_train (int): NumPy array of training image labels
+        x_val (float): NumPy array of validation images
+        y_val (int): NumPy array of validation image labels
+        x_test (float): NumPy array of test images
+        y_test (int): NumPy array of test image labels
+        cnn_backbone_name (str): The name of the transfer learning model to load (either 'DenseNet201' or 'MobileNetV2')
+        candidate_layer_name (str): The name of the layer in the convolutional module from which to extract feature maps
+        load_fine_tuned_model (bool, optional): Whether to load a weights vector from a pre-trained model before building the feature extractor. Defaults to False.
+        best_dropout_rate (int, optional): The dropout rate of the pre-trained models from which weights are being loaded. Defaults to None.
+        fine_tuned_weights_path (str, optional): the path to the pre-trained weights vector. Defaults to None.
+        use_gpu (bool, optional): Whether a GPU was used to perform the feature extraction. Defaults to False.
+
+    Returns:
+        training_data: feature maps extracted from training images
+        validation_data: feature maps extracted from validation images
+        testing_data: feature maps extracted from test images
+        feature_extraction_memory_usage: dictionary of peak RAM usage during CNN feature extraction across the data splits
+        feature_extraction_time: dictionary of execution time during CNN feature extraction across the data splits
+    """
     #to allow for GPU RAM measurement, need to configure GPU
     if use_gpu:
         gpu_devices = config.list_physical_devices('GPU')
