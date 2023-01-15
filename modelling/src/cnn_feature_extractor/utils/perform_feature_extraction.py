@@ -35,11 +35,11 @@ def perform_feature_extraction(x_train, y_train, x_val, y_val, x_test, y_test, c
         use_gpu (bool, optional): Whether a GPU was used to perform the feature extraction. Defaults to False.
 
     Returns:
-        training_data: feature maps extracted from training images
-        validation_data: feature maps extracted from validation images
-        testing_data: feature maps extracted from test images
-        feature_extraction_memory_usage: dictionary of peak RAM usage during CNN feature extraction across the data splits
-        feature_extraction_time: dictionary of execution time during CNN feature extraction across the data splits
+        training_data (float): feature maps extracted from training images
+        validation_data (float): feature maps extracted from validation images
+        testing_data (float): feature maps extracted from test images
+        feature_extraction_memory_usage (float): dictionary of peak RAM usage during CNN feature extraction across the data splits
+        feature_extraction_time (float): dictionary of execution time during CNN feature extraction across the data splits
     """
     #to allow for GPU RAM measurement, need to configure GPU
     if use_gpu:

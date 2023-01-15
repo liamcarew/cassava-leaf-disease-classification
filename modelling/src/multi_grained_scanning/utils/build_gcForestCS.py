@@ -70,6 +70,17 @@
 #    return config
 
 def build_gcforestCS(n_estimators_mgs, pooling_mgs, n_estimators_ca):
+    """
+    Function that generates the structure of a gcForestCS model based on the specified parameters
+
+    Args:
+        n_estimators_mgs (int): The number of forests (for both random forest and extremely-randomised forest) used during multi-grained scanning (MGS)
+        pooling_mgs (bool): Whether there is pooling that occurs after MGS
+        n_estimators_ca (int): The number of forests (for both random forest and extremely-randomised forest) used in the cascade forest module (CF)
+
+    Returns:
+        config (str): The final gcForestCS model configuration
+    """
 
     config = {}
     net = {}
