@@ -7,7 +7,21 @@ from tensorflow.keras.optimizers import Adam, SGD
 
 #define a wrapper function that builds the deep learning model
 def build_deep_learning_model(backbone, dropout_rate, optimiser, learning_rate, start_fine_tune_layer_name):
-  
+  """
+  Function that generates a deep transfer learning model structure based on the parameters specified.
+
+  Args:
+      backbone (str): name of the transfer learning model used (either 'DenseNet201' or 'MobileNetV2')
+      dropout_rate (float): The dropout rate applied in the fully-connected network
+      optimiser (str): the optimiser used when updating weights during backpropagation
+      learning_rate (float): The learning rate
+      start_fine_tune_layer_name (_type_): The layer within the convolutional module from which to unfreeze and update weights during training
+
+  Returns:
+      model: The final compiled model ready for training
+  """
+
+
   #correct any input so that information used is syntactically correct
   backbone = backbone.lower()
   optimiser = optimiser.lower()
